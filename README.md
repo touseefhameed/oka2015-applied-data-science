@@ -1,6 +1,6 @@
 # ØKA2015 Applied Data Science
 ### University of Inland Norway, Lillehammer, autumn 2026
-Touseef Hameed (touseef.hameed@inn.no) and Fikru Kefyalew Alemayehu
+Touseef Hameed (touseef.hameed@inn.no)
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/touseefhameed/oka2015-applied-data-science/blob/main/colab/lecture03_tidyverse.ipynb)
 
