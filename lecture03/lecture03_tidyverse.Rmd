@@ -1,0 +1,260 @@
+---
+title: "Lecture 3: Introduction to the Tidyverse"
+subtitle: "ØKA2015 Applied Data Science, University of Inland Norway"
+author: "Touseef Hameed"
+date: "16 September 2026"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    highlight: tango
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    highlight: tango
+fontsize: 11pt
+geometry: margin=2.2cm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, comment = "#>")
+```
+
+# What this document is
+
+This is an **R Markdown** file. It combines ordinary text with chunks of R code. When
+you *knit* it, R runs every chunk and places the results into a PDF or a web page. It is
+the form your assignments take: the reader sees your code, its output and your
+explanation together.
+
+The same code, without the surrounding text, is in `lecture03_tidyverse.R`. Open that
+file in RStudio and run it line by line with **Ctrl + Enter**. Every line there carries a
+comment explaining what it does.
+
+# R as a calculator
+
+R evaluates whatever you type at the console.
+
+```{r}
+1 + 1               # add
+1 / 200 * 30        # divide, then multiply
+(59 + 73 + 2) / 3   # parentheses first: an average
+```
+
+The `[1]` at the start of each answer indicates that the line of output begins at
+element 1 of the result. It becomes meaningful once results contain several elements.
+
+# Objects: the assignment operator `<-`
+
+An **object** is a named location in R's memory that holds a value. The operator `<-`
+places a value into it. Every assignment has the form `object_name <- value`; read it
+as *"object name gets value"*. In RStudio the shortcut for `<-` is **Alt + minus**.
+
+The running example is the coffee bar from Lecture 2, where a latte costs 52 NOK.
+
+```{r}
+cups <- 18           # store 18 under the name cups; nothing is printed
+cups                 # the name alone displays the value
+price <- 52          # the price of one latte, in NOK
+cups * price         # revenue for the day
+```
+
+# Vectors: `c()`
+
+A **vector** holds several values of the same kind in one object. `c()` means *combine*.
+R applies an operation to every element of a vector at once, which is called vectorised
+computation; it is why R code rarely needs a loop.
+
+```{r}
+cups <- c(18, 22, 27)      # Monday, Tuesday, Wednesday
+cups * price               # the price applied to every element
+sum(cups)                  # total cups over three days
+mean(cups)                 # average per day
+```
+
+Text is written in quotation marks; numbers are not.
+
+```{r}
+days <- c("Mon", "Tue", "Wed")   # a vector of text
+days
+```
+
+# Functions and arguments
+
+A **function** is a named command: `function_name(argument1 = value1, argument2 = value2)`.
+Arguments sit inside the parentheses, separated by commas. The first few may be given
+by position; later ones are clearer by name.
+
+```{r}
+seq(from = 1, to = 10)               # arguments by name
+seq(1, 10)                           # the same, by position
+round(mean(cups), 1)                 # a function inside a function
+mean(c(18, NA, 27), na.rm = TRUE)    # NA is a missing value; na.rm = TRUE ignores it
+```
+
+# Comments and object names
+
+Everything after `#` on a line is a **comment**: R ignores it, and it explains the code to
+a human reader. In your assignments, a comment above every command is required.
+
+A name must start with a letter and may contain letters, numbers, `_` and `.` only. Use
+descriptive names in one consistent style; this course uses `snake_case`.
+
+```{r}
+cups_monday <- 18          # snake_case, recommended
+cupsMonday  <- 18          # camelCase, also valid
+```
+
+# Precision: R does exactly what you type
+
+1. **R is case-sensitive.** `cups`, `Cups` and `CUPS` are three different names. The
+   error message always names the object it could not find.
+2. **Text requires quotation marks; numbers do not.** Writing `town <- Lillehammer`
+   makes R search for an *object* called `Lillehammer`, and fail.
+3. **Quotation marks and parentheses come in pairs.** If the console shows `+` and
+   waits, a closing `"` or `)` is missing. Complete it, or press **Esc**.
+
+# Packages: install once, load every session
+
+A **package** is a collection of functions, data and documentation written by others.
+The **tidyverse** is the collection of packages this course is built on. Two commands,
+and they are not interchangeable:
+
+- `install.packages("tidyverse")` **downloads** it to your laptop. Once per computer.
+  With quotation marks.
+- `library(tidyverse)` **loads** it for the current session. Every time you open R.
+  Without quotation marks.
+
+```{r, eval=FALSE}
+install.packages("tidyverse")   # run once on each computer you use
+```
+
+```{r}
+library(tidyverse)               # load the nine core packages for this session
+```
+
+When it loads, R lists nine core packages. A message about *conflicts* is information,
+not an error: two packages define a function with the same name, and the tidyverse
+version takes precedence. `tidyverse_update()` reports whether newer versions exist.
+
+If you ever see `there is no package called 'x'`, it means `install.packages("x")` has
+not been run on that computer.
+
+# Reading a CSV file with `readr`
+
+`read_csv()` reads a comma-separated file and returns a **tibble**, the tidyverse's data
+table. A tibble prints its dimensions, the type of every column, and only the first ten
+rows, so a large dataset remains readable.
+
+The example file has six students and five columns, from *R for Data Science*. There
+are three routes into R; the first argument, the path, is the most important one.
+
+**Route 1, from the web.** Nothing to download first.
+
+```{r, eval=FALSE}
+students <- read_csv("https://pos.it/r4ds-students-csv")   # the path is a web address
+```
+
+**Route 2, from a file on your laptop.** The path is relative to your *working
+directory*, the folder R reads from and writes to. `getwd()` reports it. This document
+uses route 2 so that it knits without an internet connection.
+
+```{r}
+students <- read_csv("data/students.csv")   # relative to the working directory
+```
+
+**Route 3, the Import button.** Environment pane, *Import Dataset > From Text (readr)*,
+choose the file, and RStudio writes route 2 for you. Copy the command it shows into your
+script so that the import is reproducible.
+
+# A first look at the dataset
+
+Always inspect before you analyse. These commands are Assignment 1, Problems 1 to 4.
+
+```{r}
+students             # dimensions, column names, column types
+head(students)       # first six rows
+nrow(students)       # observations
+ncol(students)       # variables
+names(students)      # column names
+glimpse(students)    # every column on its own line, with its type
+summary(students)    # basic statistics per column
+```
+
+Note the type under each column name: `<chr>` is text, `<dbl>` is a number. `AGE` was
+read as text. That is a clue.
+
+# Real data is rarely clean
+
+Two features of this file are typical of real data.
+
+**"N/A" is text, not a missing value.** R treats only a genuinely empty cell as missing
+(`NA`). The string `"N/A"` is three characters of text. State which strings mean missing:
+
+```{r}
+students <- read_csv("data/students.csv", na = c("N/A", ""))   # na = : a named argument
+students$favourite.food       # $ selects one column; row 3 is now NA
+sum(is.na(students))          # is.na() is TRUE where missing; sum() counts them
+colSums(is.na(students))      # per column
+```
+
+**"five" is a word, not a number.** One age is written out, so the whole column became
+text. Replace the word and convert the column:
+
+```{r}
+students$AGE <- gsub("five", "5", students$AGE)   # global substitution
+students$AGE <- as.numeric(students$AGE)          # text to numbers
+students$AGE
+mean(students$AGE, na.rm = TRUE)                  # ignoring the missing value
+```
+
+Lecture 4 performs this kind of correction with the dplyr verbs. This is a preview of
+why data wrangling takes 50 to 80 per cent of a data scientist's time.
+
+# Saving a copy, and other file types
+
+`write_csv()` is the reverse of `read_csv()`: the object, then the path.
+
+```{r}
+dir.create("data", showWarnings = FALSE)          # make the folder if it does not exist
+write_csv(students, "data/students_clean.csv")    # write the tibble to disk
+file.exists("data/students_clean.csv")            # TRUE if the file is there
+```
+
+Several files can be read in one call, with `id = "file"` recording the source of each
+row:
+
+```{r, eval=FALSE}
+sales_files <- c("https://pos.it/r4ds-01-sales",
+                 "https://pos.it/r4ds-02-sales",
+                 "https://pos.it/r4ds-03-sales")
+sales <- read_csv(sales_files, id = "file")
+```
+
+Other formats use the same idea with a different function: `read_csv2()` for
+semicolon-separated files, which is common in Norway because the comma is the decimal
+marker; `read_tsv()` for tab-separated files; `read_delim()` for any delimiter;
+`readxl::read_excel()` for Excel workbooks.
+
+# What you can do now
+
+- store values in objects and combine them with `c()`
+- call a function with named or positional arguments
+- install and load a package
+- read a CSV from the web or from disk
+- inspect its dimensions, names, types and summary
+- recognise the two most common ways real data arrives incorrect
+
+**Lecture 4, Friday 18 September:** the dplyr verbs `filter()`, `select()`, `mutate()`,
+`arrange()`, `group_by()` and `summarise()`. That is Assignment 1, Problems 5 and 6.
+
+# Sources
+
+- Wickham, Çetinkaya-Rundel and Grolemund (2023), *R for Data Science*, 2nd ed.
+  Introduction (*Prerequisites*), Ch. 2 *Workflow: basics*, Ch. 7 *Data import*.
+  Free at <https://r4ds.hadley.nz>.
+- The tidyverse: <https://www.tidyverse.org>
+- readr: <https://readr.tidyverse.org>
