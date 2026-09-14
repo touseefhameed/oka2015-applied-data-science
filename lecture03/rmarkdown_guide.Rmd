@@ -139,6 +139,11 @@ The document is built in a **fresh R session**: nothing from your console is ava
 Every package must be loaded and every object created *inside* the document, in order.
 
 The result is saved next to the `.Rmd` file, with the same name and `.pdf` or `.html`.
+That is also how you choose where the PDF goes: save the `.Rmd` into the folder you
+want first (**File → Save As…**), for example `Documents/oka2015/assignment1/`, then
+knit. If you open the file from Downloads, the PDF lands in Downloads. The Knit button's
+*Knit Directory* setting changes the working directory, not the output location; leave
+it at *Document Directory*.
 
 PDF needs a LaTeX installation. If knitting to PDF fails, either run once in the
 console

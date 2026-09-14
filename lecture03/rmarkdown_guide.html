@@ -1659,7 +1659,13 @@ or press <strong>Ctrl + Shift + K</strong>. The document is built in a
 available. Every package must be loaded and every object created
 <em>inside</em> the document, in order.</p>
 <p>The result is saved next to the <code>.Rmd</code> file, with the same
-name and <code>.pdf</code> or <code>.html</code>.</p>
+name and <code>.pdf</code> or <code>.html</code>. That is also how you
+choose where the PDF goes: save the <code>.Rmd</code> into the folder
+you want first (<strong>File → Save As…</strong>), for example
+<code>Documents/oka2015/assignment1/</code>, then knit. If you open the
+file from Downloads, the PDF lands in Downloads. The Knit button’s
+<em>Knit Directory</em> setting changes the working directory, not the
+output location; leave it at <em>Document Directory</em>.</p>
 <p>PDF needs a LaTeX installation. If knitting to PDF fails, either run
 once in the console</p>
 <pre class="r"><code>install.packages(&quot;tinytex&quot;)
