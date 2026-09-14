@@ -1614,7 +1614,9 @@ head(students)                          # first six rows
 <p>Insert a new chunk with <strong>Ctrl + Alt + I</strong>. Run one
 chunk without knitting by clicking the green <strong>play</strong>
 button at its top right. Its output appears under it in the editor.</p>
-<p>When the document is knitted, that chunk produces this:</p>
+<p>When the document is knitted, that chunk produces this (the long
+message that <code>library(tidyverse)</code> prints is hidden here with
+<code>message=FALSE</code>, see Section 4):</p>
 <pre class="r"><code>library(tidyverse)
 students &lt;- read_csv(&quot;data/students.csv&quot;, show_col_types = FALSE)
 head(students)</code></pre>
