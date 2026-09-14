@@ -18,7 +18,7 @@ geometry: margin=2.2cm
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, comment = "#>")
+knitr::opts_chunk$set(echo = TRUE, comment = "#>", warning = FALSE)
 ```
 
 # What an R Markdown file is
@@ -104,9 +104,10 @@ head(students)                          # first six rows
 Insert a new chunk with **Ctrl + Alt + I**. Run one chunk without knitting by clicking
 the green **play** button at its top right. Its output appears under it in the editor.
 
-When the document is knitted, that chunk produces this:
+When the document is knitted, that chunk produces this (the long message that
+`library(tidyverse)` prints is hidden here with `message=FALSE`, see Section 4):
 
-```{r}
+```{r, message=FALSE}
 library(tidyverse)
 students <- read_csv("data/students.csv", show_col_types = FALSE)
 head(students)
