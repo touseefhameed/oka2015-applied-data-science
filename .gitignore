@@ -1,0 +1,23 @@
+# R
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+Rplots.pdf
+
+# knitr / rmarkdown intermediates (the final PDF and HTML are committed on purpose)
+*_files/
+*_cache/
+*.tex
+*.log
+*.aux
+
+# files the scripts write when students run them
+**/data/students_clean.csv
+
+# editors and OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+__pycache__/
