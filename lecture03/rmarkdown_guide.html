@@ -1579,37 +1579,10 @@ the code, then your explanation.</p>
 <h2><span class="header-section-number">3.3</span> Code chunks</h2>
 <p>A chunk starts with <code>```{r}</code> on its own line and ends with
 <code>```</code>:</p>
-<pre class="markdown"><code>
-``` r
+<pre class="default"><code>```{r}
 library(tidyverse)                      # load the packages
 students &lt;- read_csv(&quot;data/students.csv&quot;)   # read the data
-```
-
-```
-#&gt; Rows: 6 Columns: 5
-#&gt; ── Column specification ────────────────────────────────────────────────────────
-#&gt; Delimiter: &quot;,&quot;
-#&gt; chr (4): Full Name, favourite.food, mealPlan, AGE
-#&gt; dbl (1): Student ID
-#&gt; 
-#&gt; ℹ Use `spec()` to retrieve the full column specification for this data.
-#&gt; ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-```
-
-``` r
 head(students)                          # first six rows
-```
-
-```
-#&gt; # A tibble: 6 × 5
-#&gt;   `Student ID` `Full Name`      favourite.food     mealPlan            AGE  
-#&gt;          &lt;dbl&gt; &lt;chr&gt;            &lt;chr&gt;              &lt;chr&gt;               &lt;chr&gt;
-#&gt; 1            1 Sunil Huffmann   Strawberry yoghurt Lunch only          4    
-#&gt; 2            2 Barclay Lynn     French fries       Lunch only          5    
-#&gt; 3            3 Jayendra Lyne    N/A                Breakfast and lunch 7    
-#&gt; 4            4 Leon Rossini     Anchovies          Lunch only          &lt;NA&gt; 
-#&gt; 5            5 Chidiegwu Dunkel Pizza              Breakfast and lunch five 
-#&gt; 6            6 Güvenç Attila    Ice cream          Lunch only          6
 ```</code></pre>
 <p>Insert a new chunk with <strong>Ctrl + Alt + I</strong>. Run one
 chunk without knitting by clicking the green <strong>play</strong>
@@ -1674,8 +1647,7 @@ every knit</td>
 </tbody>
 </table>
 <p>Example, as written in the lecture file:</p>
-<pre class="markdown"><code>
-``` r
+<pre class="default"><code>```{r, eval=FALSE}
 install.packages(&quot;tidyverse&quot;)   # run once on each computer you use
 ```</code></pre>
 </div>

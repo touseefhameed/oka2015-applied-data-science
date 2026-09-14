@@ -93,7 +93,7 @@ explanation.
 
 A chunk starts with ```` ```{r} ```` on its own line and ends with ```` ``` ````:
 
-````markdown
+````{verbatim}
 ```{r}
 library(tidyverse)                      # load the packages
 students <- read_csv("data/students.csv")   # read the data
@@ -126,7 +126,7 @@ Options go inside the braces after `r`, separated by commas.
 
 Example, as written in the lecture file:
 
-````markdown
+````{verbatim}
 ```{r, eval=FALSE}
 install.packages("tidyverse")   # run once on each computer you use
 ```
