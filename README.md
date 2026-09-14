@@ -5,9 +5,11 @@ Touseef Hameed (touseef.hameed@inn.no)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/touseefhameed/oka2015-applied-data-science/blob/main/colab/lecture03_tidyverse.ipynb)
 
 Code, data and slides for the lectures, so you can rerun everything from class at your
-own pace. This is **additional material**: the lectures and Canvas remain the course.
-Assignments are written in RStudio on your own laptop; Colab is the safety net for the
-day your laptop will not cooperate.
+own pace. **The primary way to follow the course is RStudio on your own laptop, typing
+the commands yourself**; that is how the lectures are taught and how assignments are
+written. This repository is for afterwards: download a script to rerun it, read the
+knitted tutorial, or run the code directly in Colab when your own installation is not
+available.
 
 ---
 
