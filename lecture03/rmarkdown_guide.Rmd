@@ -1,0 +1,174 @@
+---
+title: "How to write an R Markdown file"
+subtitle: "A short guide, using lecture03_tidyverse.Rmd as the example"
+author: "Touseef Hameed, ØKA2015 Applied Data Science"
+date: "September 2026"
+output:
+  pdf_document:
+    toc: true
+    number_sections: true
+    highlight: tango
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: flatly
+fontsize: 11pt
+geometry: margin=2.2cm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, comment = "#>")
+```
+
+# What an R Markdown file is
+
+An R Markdown file (`.Rmd`) is a text file that mixes three things:
+
+1. a **header** at the top, between two lines of `---`, that says what the document
+   is called and what it should become (PDF or web page);
+2. **text**, written in Markdown, a plain way of marking headings, bold and lists;
+3. **code chunks**, blocks of R code that run when the document is *knitted*, with their
+   output placed right after them.
+
+Pressing **Knit** in RStudio turns the file into a finished document: your explanation,
+your code and its results, together. That is why assignments should use it: the reader
+sees exactly what you ran and what came out.
+
+This guide is itself an R Markdown file. Open `rmarkdown_guide.Rmd` next to the PDF and
+compare them; every part described below is visible in the source.
+
+# Create one
+
+In RStudio: **File → New File → R Markdown…** Give it a title and your name, choose
+**PDF** or **HTML**, click **OK**. RStudio opens a file with example content. Delete
+everything below the header and write your own.
+
+Save it with **Ctrl + S**, in a folder of its own, with any data in a `data/` subfolder
+next to it. When knitting, R uses the folder of the `.Rmd` file as its working
+directory, so `read_csv("data/students.csv")` finds the file with no `setwd()`.
+
+# The three parts, using the lecture file
+
+## The header
+
+The top of `lecture03_tidyverse.Rmd` looks like this:
+
+````markdown
+---
+title: "Lecture 3: Introduction to the Tidyverse"
+author: "Touseef Hameed"
+date: "16 September 2026"
+output: pdf_document
+---
+````
+
+Change the title, author and date. `output: pdf_document` makes a PDF;
+`output: html_document` makes a web page. Keep the indentation exactly as shown; the
+header is sensitive to spaces.
+
+## Text
+
+Ordinary sentences are just typed. A few marks give structure:
+
+````markdown
+# A main heading
+## A smaller heading
+
+Plain paragraph. **Bold**, *italic*, and `code in the text`.
+
+- a bullet point
+- another one
+
+1. a numbered step
+2. the next step
+
+A link: <https://r4ds.hadley.nz>
+````
+
+In an assignment, use one `#` heading per problem, then the code, then your
+explanation.
+
+## Code chunks
+
+A chunk starts with ```` ```{r} ```` on its own line and ends with ```` ``` ````:
+
+````markdown
+```{r}
+library(tidyverse)                      # load the packages
+students <- read_csv("data/students.csv")   # read the data
+head(students)                          # first six rows
+```
+````
+
+Insert a new chunk with **Ctrl + Alt + I**. Run one chunk without knitting by clicking
+the green **play** button at its top right. Its output appears under it in the editor.
+
+When the document is knitted, that chunk produces this:
+
+```{r}
+library(tidyverse)
+students <- read_csv("data/students.csv", show_col_types = FALSE)
+head(students)
+```
+
+# Chunk options you will need
+
+Options go inside the braces after `r`, separated by commas.
+
+| option | effect | use it for |
+|---|---|---|
+| `eval=FALSE` | show the code, do not run it | `install.packages("tidyverse")`, which must not run at every knit |
+| `echo=FALSE` | run the code, hide it, show only the output | a plot where the code is not the point |
+| `include=FALSE` | run the code, show nothing | a setup chunk |
+| `message=FALSE, warning=FALSE` | hide messages and warnings | the long message that `library(tidyverse)` prints |
+
+Example, as written in the lecture file:
+
+````markdown
+```{r, eval=FALSE}
+install.packages("tidyverse")   # run once on each computer you use
+```
+````
+
+# Knit
+
+Click **Knit** (the ball-of-wool icon above the editor), or press **Ctrl + Shift + K**.
+The document is built in a **fresh R session**: nothing from your console is available.
+Every package must be loaded and every object created *inside* the document, in order.
+
+The result is saved next to the `.Rmd` file, with the same name and `.pdf` or `.html`.
+
+PDF needs a LaTeX installation. If knitting to PDF fails, either run once in the
+console
+
+```{r, eval=FALSE}
+install.packages("tinytex")
+tinytex::install_tinytex()
+```
+
+or change the header to `output: html_document`. HTML is accepted for the assignment.
+
+# The errors everyone meets
+
+| message | cause | fix |
+|---|---|---|
+| `object 'students' not found` | the chunk that creates it is missing, or comes later in the file | create every object before you use it, inside the document |
+| `could not find function "read_csv"` | `library(tidyverse)` is not in the document, or comes after the chunk | put it in the first chunk |
+| `cannot open file 'data/students.csv'` | the file is not in a `data` folder next to the `.Rmd` | move it there, or use the web address |
+| the knit stops at `install.packages` | the chunk is being run | add `eval=FALSE` to that chunk |
+| `Error in parse: unexpected symbol` | a typing error in the chunk, often a missing comma or quote | run the chunk alone with the play button to find the line |
+
+The knitting log, in the **R Markdown** tab at the bottom of RStudio, names the chunk
+where the problem is.
+
+# For the assignment
+
+- One heading per problem: `# Problem 1`, `# Problem 2`, and so on.
+- Under each: the chunk with the code and, for the written problems, your text.
+- A comment on every command.
+- Knit it, check that the output under each chunk is what you meant, and upload the
+  `.Rmd` together with the knitted `.pdf` or `.html`.
+
+If knitting does not work on your computer, screenshots of your RStudio window showing
+the code and its output are accepted instead.
