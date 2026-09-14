@@ -17,6 +17,7 @@ available.
 
 | folder | what is in it |
 |---|---|
+| `lecture02/` | Lecture 2, 27 August: the data science process, tidy data, R and RStudio. Slides only. |
 | `lecture03/` | **Lecture 3, 16 September: Introduction to the Tidyverse.** Slides, the commented R script, the R Markdown tutorial with its PDF, the practice exercise, and the data. |
 | `colab/` | The same scripts as Google Colab notebooks, R runtime, one result per cell. |
 | `tools/` | The script that builds a Colab notebook from an R script. Instructor use. |
