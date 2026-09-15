@@ -53,7 +53,7 @@ keeps your own version.
 | file | what it is | source |
 |---|---|---|
 | `lecture03/data/students.csv` | six students, five columns, deliberately a little messy | Wickham et al., *R for Data Science* (2e), Ch. 7, <https://pos.it/r4ds-students-csv> |
-| `data/housing.csv` | California Housing Prices, 20,640 districts from the 1990 census, 10 columns. Used in Assignment 1. | Pace and Barry (1997), StatLib; CSV as distributed on [Kaggle](https://www.kaggle.com/datasets/camnugent/california-housing-prices) and in Géron, *Hands-On Machine Learning* |
+| `assignment1/data/housing.csv` | California Housing Prices, 20,640 districts from the 1990 census, 10 columns. Used in Assignment 1. | Pace and Barry (1997), StatLib; CSV as distributed on [Kaggle](https://www.kaggle.com/datasets/camnugent/california-housing-prices) and in Géron, *Hands-On Machine Learning* |
 
 ## Reading
 
