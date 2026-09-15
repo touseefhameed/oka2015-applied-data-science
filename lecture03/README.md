@@ -14,7 +14,7 @@ a script. That is Assignment 1, Problems 1 to 4.
 | `lecture03_tidyverse.Rmd` | the same content as an R Markdown tutorial: text and code together. Open it in RStudio and press **Knit** to see how an assignment document is produced. |
 | `lecture03_tidyverse.pdf` | what the Rmd looks like once knitted |
 | `rmarkdown_guide.Rmd` and `.pdf` | **how to write an R Markdown file**: header, text, code chunks, chunk options, knitting, the usual errors. Uses the lecture file as its example. Read this before Assignment 1. |
-| `exercise_lecture03.md` | six short practice tasks. Not graded. Do them before Friday. |
+| `exercise_lecture03.pdf` (and `.Rmd`) | six short practice tasks. Not graded. Do them before Friday; the warm-up for Assignment 1. |
 | `data/students.csv` | the dataset. The script reads it from the web; this copy is for when you are offline. |
 
 Prefer the browser? The same script runs in Colab:

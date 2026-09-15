@@ -1,0 +1,77 @@
+---
+title: "Practice exercise, Lecture 3"
+subtitle: "ØKA2015 Applied Data Science. Not graded. Do it before Friday; it is the warm-up for Assignment 1."
+author: "Touseef Hameed"
+date: "16 September 2026"
+output:
+  pdf_document: default
+  html_document: default
+fontsize: 11pt
+geometry: margin=2.2cm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+Reference: the Lecture 3 slides and `lecture03_tidyverse.R`. Use the `students.csv`
+file, either from the web, `read_csv("https://pos.it/r4ds-students-csv")`, or from
+`data/students.csv` if you opened the lecture project.
+
+Work in a script. For each task, write the command, run it with **Ctrl + Enter**, and
+check the Console. Six tasks, about 45 minutes.
+
+## Task 1: objects and vectors
+
+The coffee bar sold 18, 22 and 27 lattes on Monday, Tuesday and Wednesday, at 52 NOK
+each.
+
+a. Store the three counts in a vector called `cups`, and the price in `price`.
+b. Compute the revenue for each day in one line, without a loop.
+c. Compute the total revenue, and the average number of cups per day.
+d. What does `cups > 20` return? Explain each element of the answer.
+
+## Task 2: packages
+
+a. Of these two lines, which do you run once per computer, and which every session?
+
+```{r}
+install.packages("tidyverse")
+library(tidyverse)
+```
+
+b. You run `library(janitor)` and get `there is no package called 'janitor'`. Write
+   the single line that fixes it.
+
+## Task 3: reading data
+
+a. Read the students file into an object called `students`.
+b. Show the first six rows.
+c. How many observations and how many variables does it have? Use one function for each.
+d. What does `glimpse(students)` show you that `head(students)` does not?
+
+## Task 4: types
+
+a. Look at the type printed under the `AGE` column. Why is it `<chr>` and not `<dbl>`?
+b. Look at `favourite.food` for student 3. Is that a missing value to R? How do you know?
+c. Read the file again so that `"N/A"` becomes a real `NA`. Then count the missing cells.
+
+## Task 5: a sentence with numbers in it
+
+Using `nrow()`, `ncol()` and `cat()`, print exactly this line to the Console:
+
+```
+The students table has 6 rows and 5 columns.
+```
+
+## Task 6: save your work
+
+Put every command you used into a script, with a comment above each one saying what it
+does, and save it as `YourName_lecture03.R`. Close RStudio, open it again, and run the
+whole script from the top. It should work without you typing anything else. If it does
+not, the missing line is almost always `library(tidyverse)`.
+
+---
+
+*Answers are not distributed. Compare with a classmate, or bring your script to Friday's
+lecture.*
