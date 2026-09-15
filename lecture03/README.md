@@ -9,6 +9,7 @@ a script. That is Assignment 1, Problems 1 to 4.
 
 | file | what it is |
 |---|---|
+| `README_lab.txt` | the plain-text lab guide handed out on Canvas: how to set the folder up, what each file is, how to run the lab |
 | `lecture03_slides.pdf` | the slides from class |
 | `lecture03_tidyverse.R` | **start here.** The lecture's code, one comment per line. Run it top to bottom with Ctrl + Enter. |
 | `lecture03_tidyverse.Rmd` | the same content as an R Markdown tutorial: text and code together. Open it in RStudio and press **Knit** to see how an assignment document is produced. |
