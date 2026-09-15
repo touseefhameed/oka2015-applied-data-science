@@ -2,7 +2,6 @@
 .Rhistory
 .RData
 .Rproj.user/
-*.Rproj
 Rplots.pdf
 
 # knitr / rmarkdown intermediates (the final PDF and HTML are committed on purpose)
