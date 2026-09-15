@@ -1,0 +1,79 @@
+---
+title: "Assignment 1: reading and inspecting data with readr and dplyr"
+subtitle: "ØKA2015 Applied Data Science, autumn 2026"
+author: "YOUR NAME"
+date: "DATE"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, comment = "#>")
+```
+
+<!-- How to use this file
+     1. Rename it YourName_Assignment1.Rmd and put your name and the date above.
+     2. Under each problem heading there is a code chunk. Put your commands in it,
+        with a comment on every line. Run a chunk with the green play button.
+     3. Write your explanation or answer as ordinary text under the chunk.
+     4. Press Knit. Check that every problem shows the code and its output.
+     If PDF knitting fails, change "output: pdf_document" to "output: html_document".
+     Lines like this one, between <!-- and -->, are notes to you and do not appear
+     in the knitted document. Delete them when you are done. -->
+
+# Problem 1. Loading the data
+
+```{r}
+library(tidyverse)                                     # load the tidyverse
+# housing <- read_csv("data/housing.csv")              # read the file; remove the # and complete the problem
+```
+
+Your comment on what you see.
+
+# Problem 2. Your environment
+
+```{r}
+
+```
+
+Which objects does your session contain, and which one holds the data?
+
+# Problem 3. Size
+
+```{r}
+
+```
+
+State the number of observations and variables in a sentence.
+
+# Problem 4. Structure and summary
+
+```{r}
+
+```
+
+Which column contains text rather than numbers, and which column has missing values?
+
+# Problem 5. Selecting columns
+
+```{r}
+
+```
+
+# Problem 6. Creating a column
+
+```{r}
+
+```
+
+# Problem 7. What is dplyr for?
+
+Write about 100 words. Name five dplyr functions and, in one line each, what they do.
+
+# Problem 8. What is data wrangling?
+
+Write about 100 words, with an example from this dataset.
+
+# Use of AI tools
+
+Delete this section if you did not use any. Otherwise, one or two lines: which tool,
+and what you used it for.
