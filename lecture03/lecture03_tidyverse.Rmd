@@ -128,9 +128,12 @@ and they are not interchangeable:
 - `library(tidyverse)` **loads** it for the current session. Every time you open R.
   Without quotation marks.
 
-```{r, eval=FALSE}
+```{r install, eval=FALSE}
 install.packages("tidyverse")   # run once on each computer you use
 ```
+
+The tidyverse provides `dplyr` (which is where `glimpse()` comes from), `readr`
+(`read_csv()`), `tibble`, and six more packages.
 
 ```{r}
 library(tidyverse)               # load the nine core packages for this session

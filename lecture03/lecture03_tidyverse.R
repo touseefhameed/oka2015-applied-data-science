@@ -141,8 +141,9 @@ ls()                       # revenue is gone
 #     Note the quotes: install.packages("tidyverse") has them,
 #                      library(tidyverse) does not.
 ###############################
-# install.packages("tidyverse")   # remove the # and run this ONCE. It downloads
-                                  # about 40 packages. Wait for the > prompt
+install.packages("tidyverse")     # run this ONCE per computer. It downloads about 40 packages;
+                                  # wait for the > prompt. Running it again does no harm
+# The tidyverse provides dplyr (glimpse, and the verbs of Lecture 4), readr (read_csv), tibble, ...
 
 library(tidyverse)         # loads the nine core packages for this session.
                            # A message listing them, plus a "Conflicts" note, is normal

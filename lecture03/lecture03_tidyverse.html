@@ -1700,6 +1700,10 @@ quotation marks.</li>
 current session. Every time you open R. Without quotation marks.</li>
 </ul>
 <div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;tidyverse&quot;</span>)   <span class="co"># run once on each computer you use</span></span></code></pre></div>
+<p>The tidyverse provides <code>dplyr</code> (which is where
+<code>glimpse()</code> comes from), <code>readr</code>
+(<code>read_csv()</code>), <code>tibble</code>, and six more
+packages.</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)               <span class="co"># load the nine core packages for this session</span></span></code></pre></div>
 <p>When it loads, R lists nine core packages. A message about
 <em>conflicts</em> is information, not an error: two packages define a
@@ -1740,24 +1744,20 @@ dataset</h1>
 Problems 1 to 4.</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a>students             <span class="co"># dimensions, column names, column types</span></span></code></pre></div>
 <pre><code>#&gt; # A tibble: 6 × 5
-#&gt;   `Student ID` `Full Name`      favourite.food     mealPlan            AGE  
-#&gt;          &lt;dbl&gt; &lt;chr&gt;            &lt;chr&gt;              &lt;chr&gt;               &lt;chr&gt;
-#&gt; 1            1 Sunil Huffmann   Strawberry yoghurt Lunch only          4    
-#&gt; 2            2 Barclay Lynn     French fries       Lunch only          5    
-#&gt; 3            3 Jayendra Lyne    N/A                Breakfast and lunch 7    
-#&gt; 4            4 Leon Rossini     Anchovies          Lunch only          &lt;NA&gt; 
-#&gt; 5            5 Chidiegwu Dunkel Pizza              Breakfast and lunch five 
-#&gt; 6            6 Güvenç Attila    Ice cream          Lunch only          6</code></pre>
+#&gt;   `Student ID` `Full Name`    favourite.food     mealPlan            AGE  
+#&gt;          &lt;dbl&gt; &lt;chr&gt;          &lt;chr&gt;              &lt;chr&gt;               &lt;chr&gt;
+#&gt; 1            1 Sunil Huffmann Strawberry yoghurt Lunch only          4    
+#&gt; 2            2 Barclay Lynn   French fries       Lunch only          5    
+#&gt; 3            3 Jayendra Lyne  N/A                Breakfast and lunch 7    
+#&gt; # ℹ 3 more rows</code></pre>
 <div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="fu">head</span>(students)       <span class="co"># first six rows</span></span></code></pre></div>
 <pre><code>#&gt; # A tibble: 6 × 5
-#&gt;   `Student ID` `Full Name`      favourite.food     mealPlan            AGE  
-#&gt;          &lt;dbl&gt; &lt;chr&gt;            &lt;chr&gt;              &lt;chr&gt;               &lt;chr&gt;
-#&gt; 1            1 Sunil Huffmann   Strawberry yoghurt Lunch only          4    
-#&gt; 2            2 Barclay Lynn     French fries       Lunch only          5    
-#&gt; 3            3 Jayendra Lyne    N/A                Breakfast and lunch 7    
-#&gt; 4            4 Leon Rossini     Anchovies          Lunch only          &lt;NA&gt; 
-#&gt; 5            5 Chidiegwu Dunkel Pizza              Breakfast and lunch five 
-#&gt; 6            6 Güvenç Attila    Ice cream          Lunch only          6</code></pre>
+#&gt;   `Student ID` `Full Name`    favourite.food     mealPlan            AGE  
+#&gt;          &lt;dbl&gt; &lt;chr&gt;          &lt;chr&gt;              &lt;chr&gt;               &lt;chr&gt;
+#&gt; 1            1 Sunil Huffmann Strawberry yoghurt Lunch only          4    
+#&gt; 2            2 Barclay Lynn   French fries       Lunch only          5    
+#&gt; 3            3 Jayendra Lyne  N/A                Breakfast and lunch 7    
+#&gt; # ℹ 3 more rows</code></pre>
 <div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a><span class="fu">nrow</span>(students)       <span class="co"># observations</span></span></code></pre></div>
 <pre><code>#&gt; [1] 6</code></pre>
 <div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="fu">ncol</span>(students)       <span class="co"># variables</span></span></code></pre></div>
