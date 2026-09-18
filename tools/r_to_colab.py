@@ -68,13 +68,16 @@ def parse_script(text):
         if line.strip() == "":
             flush_code(buf); buf = []
         else:
+            if line.lstrip().startswith("install.packages("):
+                # the Setup cell already installs what is needed; leave the line visible but inert
+                line = "# " + line + "   # done in the Setup cell above"
             buf.append(line)
         i += 1
     flush_code(buf)
     return cells
 
 
-def build_notebook(cells, title, intro):
+def build_notebook(cells, title, intro, packages=()):
     nb_cells = []
 
     def md(src):
@@ -84,13 +87,19 @@ def build_notebook(cells, title, intro):
         return {"cell_type": "code", "metadata": {}, "execution_count": None,
                 "outputs": [], "source": src}
 
+    pkgs = ["tidyverse"] + [p for p in packages if p != "tidyverse"]
+    extra = ""
+    if packages:
+        extra = (" It also installs " + ", ".join(packages) +
+                 ", which Colab does not have; that takes about a minute.")
     nb_cells.append(md(f"# {title}\n\n{intro}"))
     nb_cells.append(md("## Setup\n\nRun this cell first. Colab's R runtime already has the tidyverse; "
-                       "this only installs it if it is somehow missing."))
-    nb_cells.append(code(
-        'if (!requireNamespace("tidyverse", quietly = TRUE)) install.packages("tidyverse")\n'
-        "library(tidyverse)\n"
-        'cat("tidyverse loaded, R", R.version.string, "\\n")'))
+                       "this only installs it if it is somehow missing." + extra))
+    setup = "".join(
+        f'if (!requireNamespace("{p}", quietly = TRUE)) install.packages("{p}")\n' for p in pkgs)
+    setup += "".join(f"library({p})\n" for p in pkgs)
+    setup += 'cat("packages loaded, R", R.version.string, "\\n")'
+    nb_cells.append(code(setup))
     for kind, src in cells:
         nb_cells.append(md(src) if kind == "markdown" else code(src))
 
@@ -112,6 +121,8 @@ def main():
     ap.add_argument("script")
     ap.add_argument("notebook")
     ap.add_argument("--title", default="Lecture notebook")
+    ap.add_argument("--packages", nargs="*", default=[],
+                    help="extra CRAN packages the setup cell must install, e.g. nycflights13")
     ap.add_argument("--intro", default=(
         "**ØKA2015 Applied Data Science, University of Inland Norway.** Touseef Hameed.\n\n"
         "This notebook is the lecture's R script, split into one result per cell. "
@@ -123,7 +134,7 @@ def main():
 
     text = open(a.script, encoding="utf-8").read()
     cells = parse_script(text)
-    nb = build_notebook(cells, a.title, a.intro)
+    nb = build_notebook(cells, a.title, a.intro, a.packages)
     with open(a.notebook, "w", encoding="utf-8") as f:
         json.dump(nb, f, indent=1, ensure_ascii=False)
     n_code = sum(1 for c in nb["cells"] if c["cell_type"] == "code")
