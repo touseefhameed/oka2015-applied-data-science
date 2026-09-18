@@ -1,10 +1,11 @@
 # ØKA2015 Applied Data Science
 ### University of Inland Norway, Lillehammer, autumn 2026
-Touseef Hameed (touseef.hameed@inn.no)
+Touseef Hameed (touseef.hameed@inn.no, touseef.research@gmail.com)
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/touseefhameed/oka2015-applied-data-science/blob/main/colab/lecture03_tidyverse.ipynb)
+Lecture 3 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/touseefhameed/oka2015-applied-data-science/blob/main/colab/lecture03_tidyverse.ipynb)  
+Lecture 4 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/touseefhameed/oka2015-applied-data-science/blob/main/colab/lecture04_wrangling.ipynb)
 
-Code, data and slides for the lectures, so you can rerun everything from class at your
+Code, data, and slides for the lectures, so you can rerun everything from class at your
 own pace. **The primary way to follow the course is RStudio on your own laptop, typing
 the commands yourself**; that is how the lectures are taught and how assignments are
 written. This repository is for afterwards: download a script to rerun it, read the
@@ -19,6 +20,7 @@ available.
 |---|---|
 | `lecture02/` | Lecture 2, 27 August: the data science process, tidy data, R and RStudio. Slides only. |
 | `lecture03/` | **Lecture 3, 16 September: Introduction to the Tidyverse.** Slides, the commented R script, the R Markdown tutorial with its PDF, the practice exercise, and the data. |
+| `lecture04/` | **Lecture 4, 18 September: Data Lab with dplyr, rows.** Slides, the commented R script, the R Markdown tutorial with its PDF, and the practice exercise. Data comes from the nycflights13 package. |
 | `assignment1/` | **Assignment 1**, due 30 September. The same files as on Canvas: PDF, README, RStudio project, the two templates, and `data/housing.csv`. |
 | `colab/` | The same scripts as Google Colab notebooks, R runtime, one result per cell. |
 | `tools/` | The script that builds a Colab notebook from an R script. Instructor use. |
@@ -35,8 +37,9 @@ Each lecture and assignment folder mirrors the Canvas folder file for file, so d
    `.R` script you want.
 3. Run it line by line with **Ctrl + Enter**. Read the comments; they explain each line.
 
-Requirements: R 4.2 or newer, RStudio, and the tidyverse (`install.packages("tidyverse")`,
-once). Lecture 2 covered installing R and RStudio; Lecture 3 covers the tidyverse.
+Requirements: R 4.2 or newer and RStudio. Every script starts with a block that installs
+the packages it needs if they are missing,
+so nothing has to be installed by hand. Lecture 2 covered installing R and RStudio.
 
 ### Option B, Google Colab in the browser (nothing to install)
 
