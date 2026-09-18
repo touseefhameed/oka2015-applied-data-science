@@ -13,6 +13,7 @@ Rplots.pdf
 
 # files the scripts write when students run them
 **/data/students_clean.csv
+**/data/delays_by_month.csv
 
 # editors and OS
 .DS_Store
