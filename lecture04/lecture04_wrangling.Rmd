@@ -1,0 +1,303 @@
+---
+title: "Lecture 4: Data Lab, importing and transforming data with dplyr (rows)"
+subtitle: "ØKA2015 Applied Data Science, University of Inland Norway"
+author: "Touseef Hameed"
+date: "18 September 2026"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    highlight: tango
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    highlight: tango
+fontsize: 11pt
+geometry: margin=2.2cm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, comment = "#>")
+options(width = 80, tibble.print_max = 3, tibble.print_min = 3, pillar.sigfig = 4)
+```
+
+# What this document is
+
+This is the Lecture 4 Data Lab as a written tutorial, in the same order as the script
+`lecture04_wrangling.R` and as Chapter 3 of *R for Data Science* up to the end of
+"Rows". The explanation is text between the code instead of comments beside it. Read it
+after the lab, or run it: open the `.Rmd` file in RStudio, press **Knit**, and this PDF
+is rebuilt on your computer.
+
+Lecture 3 brought a dataset into R and looked at it. Today you start changing it. You
+rarely get data in exactly the form you need; you keep some rows, reorder them, and
+count what is there. Those are the *row verbs* of the **dplyr** package. Columns and
+groups follow in the next lectures.
+
+# Packages and the data
+
+Two packages: the **tidyverse**, which provides dplyr (the verbs, and `glimpse()`) and
+readr (`read_csv()`), and **nycflights13**, which contains the data. Install each once
+per computer. Running the install again does no harm; it only takes time.
+
+```{r install, eval=FALSE}
+install.packages("tidyverse")
+install.packages("nycflights13")
+```
+
+Then load both, every session:
+
+```{r packages}
+library(tidyverse)
+library(nycflights13)
+flights <- nycflights13::flights
+```
+
+`library(tidyverse)` prints a *Conflicts* note: `dplyr::filter()` masks
+`stats::filter()`. Two packages have a function called `filter`, and the tidyverse one
+is used. The double colon, `packagename::function()`, says precisely which one you mean.
+`nycflights13::flights` reads as "flights from the package nycflights13".
+
+On Wednesday the data came from a CSV file. A package that ships its data is a fourth
+way to get data into R. Everything that follows is the same whichever way you used.
+
+# Quick inspection: look before you touch
+
+`flights` is a tibble: 336,776 flights that left New York in 2013, 19 columns. A tibble
+prints only the first rows and the columns that fit. Four ways to see more:
+`View(flights)` opens the spreadsheet viewer in RStudio, `print(flights, width = Inf)`
+prints every column, `print(flights, n = Inf)` prints every row (all 336,776, so use it
+with care), and `glimpse()` lists every column with its type.
+
+```{r inspect}
+flights
+nrow(flights)
+ncol(flights)
+glimpse(flights)
+```
+
+The type under each name decides what you can do with it: `<int>` and `<dbl>` are
+numbers, `<chr>` is text, `<dttm>` a date-time. Delays are in minutes, negative means
+early, and `dep_time` 517 means 05:17. `NA` in `dep_delay` means the flight was
+cancelled.
+
+`$` pulls one column out as a plain vector, which goes straight into `mean()`, `sum()`
+or `max()`:
+
+```{r dollar}
+head(flights$dep_delay)
+mean(flights$distance)
+```
+
+# Operators, the pipe, and `na.rm`
+
+A condition compares values and gives TRUE or FALSE. Two equals signs ask "is it
+equal?". Text is compared exactly, capitals included.
+
+```{r compare}
+3 == 3
+3 != 4
+5 >= 2
+"JFK" == "jfk"
+```
+
+Logical operators combine TRUE and FALSE: `&` is AND, `|` is OR, `!` is NOT. `%in%`
+asks whether a value is one of a set, and `a:b` is a range.
+
+```{r logical}
+TRUE & FALSE
+TRUE | FALSE
+!TRUE
+"JFK" %in% c("JFK", "LGA", "EWR")
+7:9
+```
+
+**The pipe.** `x |> f(y)` means `f(x, y)`: take `x`, *then* apply `f`. Read `|>` as
+"then". **Ctrl + Shift + M** inserts it in RStudio; if that gives `%>%`, the older
+pipe, tick *Use native pipe operator* under Tools, Global Options, Code. The two behave
+the same for everything in this course.
+
+```{r pipe}
+sqrt(16)
+16 |> sqrt()
+flights |> nrow()
+```
+
+The pipe is useful when there are several steps, because each line reads as a step in a
+sentence: take the flights, then keep January, then average the departure delay.
+
+```{r pipe-chain}
+flights |>
+  filter(month == 1) |>
+  summarise(avg_delay = mean(dep_delay))
+```
+
+The answer is `NA`. `mean()`, `sum()` and `max()` return `NA` if any value is missing,
+and cancelled flights have no departure delay. `na.rm = TRUE` tells the function to skip
+the missing values for this one calculation; the data itself is unchanged.
+
+```{r narm}
+v <- c(1, 2, NA, 4)
+mean(v)
+mean(v, na.rm = TRUE)
+flights |>
+  filter(month == 1) |>
+  summarise(avg_delay = mean(dep_delay, na.rm = TRUE))
+```
+
+Note the two different signs in that code. Inside `summarise()`, `=` gives the result a
+name, `avg_delay`. Outside a function call, `<-` stores an object, as in `v <- ...`.
+They are not interchangeable: `=` names something inside a call, `<-` creates an object.
+
+**What every dplyr verb shares.** The first argument is a data frame; the pipe supplies
+it. The next arguments name columns, without quotes. The result is a new data frame,
+and the input is never changed. That is why these two lines are the same command. Here
+`|> nrow()` is added so that only the row count prints; without it you get the whole
+table.
+
+```{r shares}
+filter(flights, month == 1) |> nrow()
+flights |> filter(month == 1) |> nrow()
+```
+
+# Rows: `filter()`
+
+`filter()` keeps the rows for which a condition is TRUE. All the columns stay.
+
+```{r filter}
+flights |> filter(dep_delay > 120)
+```
+
+9,723 of 336,776 flights left more than two hours late. Conditions combine with `&`
+(and), `|` (or) and `%in%` (is one of). Only the row counts are printed below; each
+line returns a whole table like the one above.
+
+```{r filter-more}
+flights |> filter(month == 1 & day == 1) |> nrow()
+flights |> filter(month == 1 | month == 2) |> nrow()
+flights |> filter(month %in% c(1, 2)) |> nrow()
+flights |> filter(dest == "IAH") |> nrow()
+```
+
+January and the first: New Year's Day, 842 flights. January or February, written two
+ways: 51,955 flights. Houston, `"IAH"` in quotes because it is text: 7,198 flights.
+
+`is.na()` is a condition like any other: TRUE where a value is missing. With `!` in
+front it keeps the rows that have a value.
+
+```{r filter-na}
+flights |> filter(is.na(dep_delay)) |> nrow()
+flights |> filter(!is.na(dep_delay)) |> nrow()
+```
+
+8,255 cancelled flights, and 328,521 that departed.
+
+Two common mistakes. The first stops with a helpful message:
+
+```{r mistake-1, error=TRUE}
+flights |> filter(month = 1)
+```
+
+The second gives no error and is wrong: R reads `month == 1 | 2` as
+`(month == 1) | 2`, and the number 2 counts as TRUE, so every row passes.
+
+```{r mistake-2}
+flights |> filter(month == 1 | 2) |> nrow()
+```
+
+Write `month == 1 | month == 2`, or `month %in% c(1, 2)`.
+
+A verb returns a new table and changes nothing. To keep a result, name it with `<-`,
+and a second object appears in the Environment pane:
+
+```{r keep}
+jan1 <- flights |> filter(month == 1 & day == 1)
+nrow(flights)
+nrow(jan1)
+```
+
+# Rows: `arrange()`
+
+`arrange()` changes the order of the rows. Ascending by default, descending with
+`desc()`. The row count never changes.
+
+```{r arrange}
+flights |> arrange(dep_delay)
+flights |> arrange(desc(dep_delay))
+```
+
+The longest departure delay was 1,301 minutes, on 9 January.
+
+With several columns, the first column decides the order and each later column breaks
+ties in the ones before it. `arrange(year, month, day, dep_time)` puts the earliest
+year first; within a year, the earliest month (January before December); within a
+month, the earliest day; within a day, the earliest departure time (05:00 before
+22:00). The result is chronological order.
+
+```{r arrange-keys}
+flights |> arrange(year, month, day, dep_time) |> nrow()   # same table, chronological
+flights |> arrange(desc(dep_time))
+```
+
+`desc()` wraps exactly one column. `desc(dep_time)` puts the latest departure times
+first.
+
+The printout shows only the columns that fit, so after sorting by `distance` you may
+not see `distance` or `dest` at all. Pipe into `glimpse()` to see every column of the
+top rows, or open the result with `View()`.
+
+```{r arrange-glimpse}
+flights |> arrange(desc(distance)) |> glimpse()
+```
+
+# Rows: `distinct()` and `count()`
+
+`distinct()` lists each unique combination of the named columns once. `count()` adds
+how many rows each has, in a column `n`; `sort = TRUE` puts the largest first.
+
+```{r distinct}
+flights |> distinct(origin, dest)
+flights |> distinct(year, month, day) |> nrow()
+flights |> count(origin, dest, sort = TRUE)
+flights |> count(dest, sort = TRUE)
+```
+
+New York flew 224 routes in 2013, on every one of the 365 days. JFK to Los Angeles was
+the busiest route and Chicago O'Hare the busiest destination. `count()` is the first
+question to ask of any text column: which values occur, and are any of them typos?
+
+# Check yourself
+
+From the exercises of Chapter 3. The answers are at the end of the practice exercise.
+
+1. Flights with an arrival delay of two or more hours.
+2. Flights that flew to Houston, `"IAH"` or `"HOU"`.
+3. Flights operated by United, American or Delta: `"UA"`, `"AA"`, `"DL"`.
+4. Flights that departed in summer: July, August, September.
+5. Flights that arrived more than two hours late but did not leave late.
+6. Sort flights to find the longest departure delays; then the flights that left
+   earliest in the morning.
+7. Was there a flight on every day of 2013?
+8. Which flights travelled the farthest? Which the least?
+
+# What you can do now
+
+- see a table: print, `View()`, `head()`, `glimpse()`, `$`
+- write a condition with `== != > >= < <= & | ! %in% is.na()`
+- chain steps with the pipe `|>` and read them as "then"
+- rows: `filter()`, `arrange()` with `desc()`, `distinct()`, `count()`
+- keep a result with `<-`, and know that a verb never changes its input
+
+The next lectures continue with dplyr: columns, then groups.
+
+# Sources
+
+- Wickham, H., Çetinkaya-Rundel, M. and Grolemund, G. (2023). *R for Data Science*,
+  2nd ed. Ch. 3, Data transformation, sections Introduction to Rows. Free at
+  <https://r4ds.hadley.nz/data-transform>.
+- Wright, C., Ellis, S., Hicks, S. and Peng, R. (2021). *Tidyverse Skills for Data
+  Science in R*, Ch. 3. <https://jhudatascience.org/tidyversecourse/>
+- Course repository: <https://github.com/touseefhameed/oka2015-applied-data-science>

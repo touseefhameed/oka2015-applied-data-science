@@ -1,0 +1,125 @@
+---
+title: "Practice exercise, Lecture 4"
+subtitle: "ØKA2015 Applied Data Science. Not graded. Do it before Tuesday."
+author: "Touseef Hameed"
+date: "18 September 2026"
+output:
+  pdf_document: default
+  html_document: default
+fontsize: 11pt
+geometry: margin=2.2cm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+Reference: the Lecture 4 slides, `lecture04_wrangling.R`, and *R for Data Science*
+Chapter 3 up to "Rows". Use the `flights` table from the nycflights13 package, loaded
+with `library(tidyverse)` and `library(nycflights13)`.
+
+Work in a script. For each task, write the command, run it with **Ctrl + Enter**, and
+read the first line of the output: the row count tells you whether the condition did
+what you meant. Nine tasks, about 50 minutes.
+
+## Task 1: operators and the pipe
+
+a. Predict, then run.
+
+```{r}
+5 > 2 & 3 == 4
+"EWR" %in% c("JFK", "LGA")
+!(10 < 20)
+```
+
+b. Rewrite each line with the pipe, and say in words what it does.
+
+```{r}
+nrow(flights)
+filter(flights, dest == "BOS")
+```
+
+## Task 2: filter, one condition
+
+a. Flights in December.
+b. Flights that arrived more than one hour late.
+c. Flights with a missing arrival delay. What do they have in common?
+
+## Task 3: filter, several conditions
+
+a. Flights to Boston (`"BOS"`) or Washington (`"DCA"`). Two spellings; write both.
+b. Flights in June, July or August that left JFK.
+c. Flights that arrived more than two hours late but did not leave late.
+d. Flights delayed by at least an hour that made up more than 30 minutes in flight.
+
+## Task 4: the two mistakes
+
+a. Run `flights |> filter(month = 12)`. What does R say, and what did it want?
+b. Run `flights |> filter(month == 12 | 1)` and count the rows. Why that number?
+   Write the version that does what was meant.
+
+## Task 5: arrange
+
+a. The ten flights with the longest arrival delay. Which airline, which day?
+b. The flights that left earliest in the morning. What does `dep_time` 1 mean?
+c. Flights sorted by distance, shortest first. Where does the shortest go?
+d. The ten longest flights by `air_time`. Where do they go?
+
+## Task 6: distinct and count
+
+a. How many different airlines are there? How many different destinations?
+b. How many flights did each airline operate, largest first?
+c. Was there a flight on every day of 2013? Use `distinct()` and `nrow()`.
+d. Which origin airport had the most flights?
+
+e. Does it matter whether you `filter()` first and then `arrange()`, or the other way
+   round? Try both on "December flights, longest departure delay first", and think about
+   which order does less work.
+
+## Task 7: a pipeline you can read aloud
+
+Write one pipeline, one verb per line, that takes the flights, then keeps December,
+then keeps arrivals more than an hour late, then puts the worst first. Read it aloud as
+a sentence. Then store it as `december_late` and check its row count.
+
+## Task 8: another dataset
+
+Download the *Global Superstore* dataset from Kaggle (search for it; it is free). It has
+columns such as Order ID, Order Date, Customer Name, Segment, Region, Category,
+Sub-Category, Sales, Quantity, Discount, Profit. Read it with `read_csv()`, then:
+
+a. Find all orders where the category is `"Technology"` and the discount is greater
+   than 0.2.
+b. Find the five orders with the highest profit.
+c. How many unique customers are in the dataset? How many orders did each region have,
+   largest first?
+
+## Task 9: save your work
+
+Put every command you used into a script, with a comment above each one saying what it
+does, and save it as `YourName_lecture04.R`. Close RStudio, open it again, and run the
+whole script from the top. It should work without you typing anything else. If it does
+not, the missing line is one of the two `library()` calls.
+
+---
+
+## Answers to "Check yourself" from the script
+
+```{r}
+flights |> filter(arr_delay >= 120)                          # 1: 10,200 rows
+flights |> filter(dest %in% c("IAH", "HOU"))                 # 2: 9,313
+flights |> filter(carrier %in% c("UA", "AA", "DL"))          # 3: 139,504
+flights |> filter(month %in% c(7, 8, 9))                     # 4: 86,326
+flights |> filter(arr_delay > 120 & dep_delay <= 0)          # 5: 29
+flights |> arrange(desc(dep_delay))                          # 6: 1,301 minutes, 9 January
+flights |> arrange(dep_time)                                 #    dep_time 1 is 00:01
+flights |> distinct(year, month, day) |> nrow()              # 7: 365, so yes
+flights |> arrange(desc(distance)) |> glimpse()              # 8: JFK to Honolulu, 4,983 miles
+flights |> arrange(distance) |> glimpse()                    #    Newark to LaGuardia, 17 miles
+```
+
+The printout shows only the columns that fit, so `dest` and `distance` are often hidden.
+`|> glimpse()` shows every column of the top rows; `View()` opens the whole table.
+
+*The answers to Tasks 1 to 9 are not distributed. Compare with a classmate, or bring
+your script to Tuesday's lecture.*
