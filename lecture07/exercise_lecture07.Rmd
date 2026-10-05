@@ -1,0 +1,95 @@
+---
+title: "Practice exercise, Lecture 7"
+subtitle: "ØKA2015 Applied Data Science. Not graded. Do it before the next lecture."
+author: "Touseef Hameed"
+date: "6 October 2026"
+output:
+  pdf_document: default
+  html_document: default
+fontsize: 11pt
+geometry: margin=2.2cm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+Reference: the Lecture 7 slides and `lecture07_descriptive.R`. You use the same steps on
+a new table: the California housing data from Assignment 1, read straight from the web:
+
+```{r}
+library(tidyverse)
+url <- paste0("https://raw.githubusercontent.com/touseefhameed/",
+              "oka2015-applied-data-science/main/assignment1/data/housing.csv")
+housing <- read_csv(url)
+```
+
+`paste0()` glues the two pieces of text into one web address; it is split only so that
+it fits on the page. From your Assignment 1 project, `read_csv("data/housing.csv")` does
+the same.
+
+Each row is a district in California. Work in a script, and write one sentence under each
+answer. Eight tasks, about 50 minutes.
+
+## Task 1: types of data
+
+a. Use `glimpse()`. Which columns are quantitative and which are categorical?
+b. Is `housing_median_age` discrete or continuous? Is `ocean_proximity` nominal or ordinal?
+c. Is this cross-sectional or time series data?
+
+## Task 2: a frequency table
+
+Make a frequency table of `ocean_proximity` with a percent column, largest first. Which
+category is smallest, and why might that matter later?
+
+## Task 3: shape
+
+Draw a histogram of `median_income` and one of `housing_median_age`. Describe each shape.
+Check your answer by comparing the mean and the median.
+
+## Task 4: centre
+
+a. The mean, median and mode of `median_house_value`.
+b. The same three measures for each `ocean_proximity` group, with `n`. Which group has
+   the highest median value?
+
+## Task 5: spread
+
+a. The standard deviation, the range and the IQR of `median_house_value`.
+b. Use `summary()` on the same column. What does the maximum tell you?
+
+## Task 6: missing values
+
+a. Which column has missing values, and how many?
+b. Look at its shape. Would you fill the missing values with the mean or the median? Fill
+   them, and check that none are left.
+
+## Task 7: outliers
+
+a. Draw a boxplot of `median_house_value`. Count the districts outside the IQR fences.
+b. Count the districts with a value of exactly 500,001. Is that a real price or a limit
+   set by whoever collected the data? What would you do with them?
+c. Use z-scores to count the districts whose `total_rooms` is more than 3 sd from the mean.
+
+## Task 8: association
+
+a. Draw a scatter plot of `median_income` against `median_house_value`.
+b. The correlation between them. Strong or weak? Positive or negative?
+c. The correlation matrix of `median_income`, `median_house_value`, `housing_median_age`
+   and `population`. Which pair is the weakest?
+d. Does a high correlation between income and house value prove that income causes high
+   prices? Why not?
+
+---
+
+## Answers to "Check yourself" from the script
+
+1. `ocean_proximity` is categorical. Its categories have no natural order, so it is
+   nominal.
+2. Mean above median: skewed right. A few very expensive houses pull the mean up.
+3. The standard deviation is in the units of the data; the variance is in squared units.
+4. IQR = 30 - 10 = 20. Fences: 10 - 1.5 × 20 = -20 and 30 + 1.5 × 20 = 60.
+5. A clear downward cloud of points: as one variable rises, the other falls.
+
+*The answers to Tasks 1 to 8 are not distributed now. Compare with a classmate, or bring
+your script to the next lecture.*
