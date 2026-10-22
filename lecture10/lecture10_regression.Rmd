@@ -1,0 +1,327 @@
+---
+title: "Lecture 10: Data mining and simple linear regression"
+subtitle: "ØKA2015 Applied Data Science, University of Inland Norway"
+author: "Touseef Hameed"
+date: "22 October 2026"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    highlight: tango
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    highlight: tango
+fontsize: 11pt
+geometry: margin=2.2cm
+header-includes:
+  - '\usepackage{etoolbox}'
+  - '\AtBeginEnvironment{Highlighting}{\renewcommand{\^}[1]{\textasciicircum}}'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, comment = "#>",
+                      fig.width = 5.2, fig.height = 3.3, fig.align = "center")
+options(width = 80, tibble.print_max = 5, tibble.print_min = 5, pillar.sigfig = 5)
+```
+
+# What this document is
+
+This is Lecture 10 as a written tutorial, in the same order as the script
+`lecture10_regression.R`. It follows Chapter 8 of *Business Analytics* (Camm et al.) and
+Chapter 5.7 of *Tidyverse Skills for Data Science* (Wright et al.). Read it after the
+lecture, or run it: open the `.Rmd` file in RStudio, press **Knit**, and this PDF is
+rebuilt on your computer.
+
+In Lecture 7 you measured how strongly two variables move together with the correlation.
+In Lectures 8 and 9 you drew them with `ggplot2`. Today you build your first model: a
+straight line that predicts one variable from another.
+
+# Packages and the data
+
+Two packages. Install each once per computer; running the install again does no harm.
+
+```{r install, eval=FALSE}
+install.packages("tidyverse")
+install.packages("broom")
+```
+
+Load them every session:
+
+```{r packages}
+library(tidyverse)
+library(broom)
+data(trees)
+glimpse(trees)
+```
+
+`trees` comes with R itself. It describes 31 black cherry trees:
+
+- `Girth` is the trunk **diameter** in inches, measured 4.5 feet above the ground. The
+  name is misleading; R's help page `?trees` says it is the diameter.
+- `Height` is the height of the tree in feet.
+- `Volume` is the volume of timber in cubic feet.
+
+One inch is 2.54 cm and one foot is 0.30 m.
+
+# Data mining
+
+**Data mining** is the use of software to find useful patterns in large amounts of data.
+It comes in two kinds:
+
+- **Descriptive data mining**, also called *unsupervised learning*: there is no answer
+  $y$ to predict. The aim is to find groups and patterns. Example: a shop groups its
+  customers by what they buy.
+- **Predictive data mining**, also called *supervised learning*: learn from past cases
+  where the answer $y$ is known, then predict $y$ for new cases. Example: predict the
+  price of a house from its size. When $y$ is a number, the task is called
+  **regression**; when $y$ is a category, **classification**.
+
+The variable we predict, $y$, is the *dependent variable*, *outcome* or *target*. The
+variable we predict it from, $x$, is the *independent variable*, *predictor* or
+*feature*. **Simple linear regression** uses one $x$ and a straight line.
+
+## The model
+
+$$\mathbf{y = \alpha + \beta x + \varepsilon}$$
+
+- $\alpha$, the **intercept**: the value of $y$ when $x = 0$, where the line crosses the
+  $y$-axis.
+- $\beta$, the **slope**: rise over run, the change in $y$ divided by the change in $x$.
+  When $x$ goes up by 1, $y$ goes up by $\beta$ on average. A slope of 0 means no linear
+  relationship.
+- $\varepsilon$, the **error term**: everything else that affects $y$, which the line
+  does not capture. For a tree: age, soil, light.
+
+Example: consumption $= \alpha + \beta \times$ income $+ \varepsilon$. Here $\beta$ is how
+much consumption rises when income rises by one unit.
+
+$\alpha$ and $\beta$ are the true values for the whole population, which we never know.
+From a sample we estimate them; the estimates are written $\hat{\alpha}$ and $\hat{\beta}$
+("alpha-hat", "beta-hat"), and the fitted line is $\hat{y} = \hat{\alpha} + \hat{\beta} x$.
+
+# A first look at two variables
+
+The question for today: the diameter of a tree is easy to measure, but the height of a
+standing tree is not. Can we predict a tree's height from its diameter? So $y$ is
+`Height` and $x$ is `Girth`.
+
+Always look at the data before you fit anything:
+
+```{r scatter}
+ggplot(trees, aes(x = Girth, y = Height)) +
+  geom_point()
+cor(trees$Girth, trees$Height)
+```
+
+The predictor goes on the horizontal axis and the outcome on the vertical axis. The points
+go up: thicker trees tend to be taller, but with much scatter. The correlation,
+$r = 0.52$, is positive and moderate.
+
+# Fitting the line
+
+## Least squares
+
+A **residual** is actual minus fitted, $e = y - \hat{y}$: how far a point lies above or
+below the line. The **least squares method** picks the line with the smallest sum of
+squared residuals. The residuals are squared so that the ones above the line (positive)
+and below it (negative) do not cancel.
+
+## Fitting it in R
+
+`lm()` fits a linear model. Read the formula `Height ~ Girth` as "height explained by
+girth": the outcome on the left of the tilde, the predictor on the right. The general form
+is `lm(y ~ x, data = table)`.
+
+```{r fit}
+fit <- lm(Height ~ Girth, data = trees)
+fit
+```
+
+The estimates replace $\alpha$ and $\beta$: **Height = 62.03 + 1.054 × Girth**.
+
+- **Slope $\hat{\beta} = 1.054$.** One inch more diameter goes with 1.05 feet more
+  height, on average. The unit of the slope is feet per inch.
+- **Intercept $\hat{\alpha} = 62.03$.** The height the line gives for a diameter of 0. No
+  tree is that thin (the diameters run from 8.3 to 20.6 inches), so it has no real
+  meaning; it only positions the line.
+
+```{r line}
+ggplot(trees, aes(x = Girth, y = Height)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Diameter (inches)", y = "Height (feet)")
+```
+
+`geom_smooth(method = "lm")` runs the same `lm()` and draws the result. `se = FALSE` draws
+the line only. In RStudio you will also see the message `geom_smooth() using formula =
+'y ~ x'`: that is information, not an error.
+
+## Fitted values, residuals and predictions
+
+The **fitted value** of a tree is the point on the line at its diameter: the height the
+line says that tree should have. The residual is how far the real height is from it.
+
+```{r residuals}
+trees_fit <- trees |>
+  mutate(fitted   = fitted(fit),
+         residual = residuals(fit))
+head(trees_fit, 3)
+```
+
+Tree 2 is 65 feet tall, but the line says 71.1 feet, so its residual is $-6.1$: it lies 6.1
+feet below the line.
+
+`predict()` gives the line's answer for a new tree:
+
+```{r predict}
+predict(fit, newdata = tibble(Girth = 15))
+```
+
+A tree 15 inches across is predicted to be 77.8 feet tall. Predict only inside the range
+of the data, here 8.3 to 20.6 inches. Outside that range is **extrapolation**: the data
+cannot show whether the line still holds there.
+
+# How sure are we about the estimates?
+
+The 31 trees are a sample. Another 31 black cherry trees would give slightly different
+estimates. `summary()` reports how much they could change.
+
+```{r summary}
+summary(fit)
+```
+
+In the `Coefficients` table, the row `Girth` holds four numbers about the slope, and the
+row `(Intercept)` the same four about the intercept:
+
+- **Estimate, 1.0544**: the slope, the beta estimate.
+- **Std. Error, 0.3222**: the **standard error**: how much the estimate would change from
+  one sample to the next. A small standard error means a precise estimate. It gets
+  smaller with more data and with points closer to the line.
+- **t value, 3.272**: the estimate divided by its standard error. The slope lies 3.3
+  standard errors away from 0.
+- **Pr(>|t|), 0.00276**: the **p-value**.
+
+To read the p-value, suppose diameter and height had no linear relationship at all, so
+that the true slope were 0. The p-value is the chance of getting a slope at least this far
+from 0 in that case. Here it is 0.0028: fewer than 3 samples in 1,000.
+
+**Decision rule:** a p-value below 0.05 makes the estimate **statistically significant**:
+we conclude that the true slope is not 0, so diameter does tell us something about height.
+The stars next to it say the same thing (`**` means p is between 0.001 and 0.01). The
+p-value does not say how big or how useful the slope is, and it is not the chance that
+our slope is wrong.
+
+With the estimates, their standard errors and p-values, the fitted model reads:
+
+Height = 62.03 + 1.054 × Girth, with standard errors (4.38) and (0.32), and p-values
+p < 0.001 and p = 0.003.
+
+The same uncertainty can be drawn as a band around the line, the default of
+`geom_smooth()`:
+
+```{r band}
+ggplot(trees, aes(x = Girth, y = Height)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+The grey band shows where the true line plausibly runs. It is narrowest at the average
+diameter and widens towards the ends.
+
+# How good is the line?
+
+## R-squared
+
+**R-squared** is the share of the variation in $y$ that the line explains, from 0
+(nothing) to 1 (every point on the line). `summary(fit)` reports `Multiple R-squared:
+0.2697`: 27% of the differences in height between the trees go with differences in
+diameter. The remaining 73% is unexplained: age, soil, light and other things, the error
+term. With one $x$, R-squared equals the correlation squared:
+
+```{r r2}
+cor(trees$Girth, trees$Height)^2
+```
+
+The **residual standard error**, 5.538 feet, is the typical distance of a tree from the
+line. It is not the same as the standard error of the slope.
+
+## The error term and the four conditions
+
+The error term collects everything that affects $y$ apart from $x$. The standard error
+and the p-value are reliable when:
+
+1. **Linearity**: the points follow a straight line, not a curve.
+2. **Independence**: one observation does not affect another. Each tree is measured once.
+3. **Equal spread**: the points are about as far from the line everywhere; no funnel.
+4. **Normal residuals**: most residuals are small, few are large, roughly symmetric.
+
+R draws four check plots for a fitted model:
+
+```{r check, fig.width = 6.4, fig.height = 4.9}
+par(mfrow = c(2, 2))
+plot(fit)
+par(mfrow = c(1, 1))
+```
+
+`par(mfrow = c(2, 2))` puts the four plots in one window, 2 rows by 2 columns; the last
+line sets it back. Look for clear patterns; with 31 trees the red lines always wiggle a
+little.
+
+- **Residuals vs Fitted**: look for a U or an arch. Here there is none: linearity holds.
+- **Q-Q Residuals**: the points lie near the dotted line, so the residuals are roughly
+  normal.
+- **Scale-Location**: look for a clear rise or fall. Here the red line falls a little on
+  the right. With 31 trees that is mild, so equal spread roughly holds.
+- **Residuals vs Leverage**: no point lies beyond the dashed Cook's distance lines, so no
+  single tree drives the line.
+
+## The results as tables
+
+The `broom` package gives the results of a model as tables (tibbles): `tidy()` for the
+coefficients, `glance()` for one row about the whole model, and `augment()` for one row
+per observation.
+
+```{r broom}
+tidy(fit)
+glance(fit)
+head(augment(fit), 3)
+```
+
+# Correlation and causation
+
+A regression measures how $x$ and $y$ move together. On its own it says nothing about
+cause and effect.
+
+- **A confounder** is a third variable that drives both $x$ and $y$. Thicker trees tend
+  to be taller, but a thicker trunk does not make a tree grow taller: older trees are both
+  thicker and taller, so age drives both. Likewise, ice cream sales and sunburn cases rise
+  and fall together because hot, sunny days drive both.
+- **Reverse causation**: $y$ may drive $x$.
+- **Coincidence**: among many variables, some pairs correlate by chance.
+
+A cause is shown by a controlled experiment, where only $x$ is changed on purpose, not by
+a regression on observed data.
+
+# What you can do now
+
+- say what predictive and descriptive data mining are
+- fit a simple linear regression with `lm()` and draw it with `geom_smooth()`
+- read the intercept and the slope in the units of the data, and predict
+- read the standard error and the p-value, and apply the decision rule
+- read R-squared, and check the conditions with the check plots
+- explain why a strong relationship does not prove cause and effect
+
+# Sources
+
+- Camm, J. D., Cochran, J. J., Fry, M. J. and Ohlmann, J. W. (2024). *Business Analytics*
+  (5th ed.). Cengage. Ch. 1.3 and the introductions to Ch. 6 and Ch. 10 (data mining);
+  Ch. 8 *Linear Regression*, sections 8.1 to 8.3 and 8.5.
+- Wright, C., Ellis, S., Hicks, S. and Peng, R. (2021). *Tidyverse Skills for Data Science
+  in R*, Ch. 5.7 *Linear Modeling*. <https://jhudatascience.org/tidyversecourse/model.html>
+- The `trees` data: Ryan, T. A., Joiner, B. L. and Ryan, B. F. (1976). *The Minitab
+  Student Handbook*. Duxbury. In R: `?trees`.
+- Course repository: <https://github.com/touseefhameed/oka2015-applied-data-science>
