@@ -4,7 +4,8 @@ Touseef Hameed (touseef.hameed@inn.no, touseef.research@gmail.com)
 
 Lecture 3 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/touseefhameed/oka2015-applied-data-science/blob/main/colab/lecture03_tidyverse.ipynb)  
 Lecture 4 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/touseefhameed/oka2015-applied-data-science/blob/main/colab/lecture04_wrangling.ipynb)  
-Lecture 7 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/touseefhameed/oka2015-applied-data-science/blob/main/colab/lecture07_descriptive.ipynb)
+Lecture 7 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/touseefhameed/oka2015-applied-data-science/blob/main/colab/lecture07_descriptive.ipynb)  
+Lecture 10 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/touseefhameed/oka2015-applied-data-science/blob/main/colab/lecture10_regression.ipynb)
 
 Code, data, and slides for the lectures, so you can rerun everything from class at your
 own pace. **The primary way to follow the course is RStudio on your own laptop, typing
@@ -23,6 +24,7 @@ available.
 | `lecture03/` | **Lecture 3, 16 September: Introduction to the Tidyverse.** Slides, the commented R script, the R Markdown tutorial with its PDF, the practice exercise, and the data. |
 | `lecture04/` | **Lecture 4, 18 September: Data Lab with dplyr, rows.** Slides, the commented R script, the R Markdown tutorial with its PDF, and the practice exercise. Data comes from the nycflights13 package. |
 | `lecture07/` | **Lecture 7, 6 October: Descriptive statistics and exploratory analysis.** Slides, the commented R script, the R Markdown tutorial with its PDF, and the practice exercise. |
+| `lecture10/` | **Lecture 10, 22 October: Data mining and simple linear regression.** Slides, the commented R script, and the R Markdown tutorial with its PDF. Data: `trees`, which comes with R. |
 | `assignment1/` | **Assignment 1**, due 30 September. The same files as on Canvas: PDF, README, RStudio project, the two templates, and `data/housing.csv`. |
 | `colab/` | The same scripts as Google Colab notebooks, R runtime, one result per cell. |
 | `tools/` | The script that builds a Colab notebook from an R script. Instructor use. |
@@ -39,9 +41,9 @@ Each lecture and assignment folder mirrors the Canvas folder file for file, so d
    `.R` script you want.
 3. Run it line by line with **Ctrl + Enter**. Read the comments; they explain each line.
 
-Requirements: R 4.2 or newer and RStudio. Every script starts with a block that installs
-the packages it needs if they are missing,
-so nothing has to be installed by hand. Lecture 2 covered installing R and RStudio.
+Requirements: R 4.2 or newer and RStudio. Every script starts with one
+`install.packages()` line per package it needs: run them once per computer. Lecture 2
+covered installing R and RStudio.
 
 ### Option B, Google Colab in the browser (nothing to install)
 
