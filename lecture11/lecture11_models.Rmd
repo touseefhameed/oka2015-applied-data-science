@@ -1,0 +1,369 @@
+---
+title: "Lecture 11: Multiple regression, logistic regression and k-nearest neighbours"
+subtitle: "ØKA2015 Applied Data Science, University of Inland Norway"
+author: "Touseef Hameed"
+date: "3 November 2026"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    highlight: tango
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    theme: flatly
+    highlight: tango
+fontsize: 11pt
+geometry: margin=2.2cm
+header-includes:
+  - '\usepackage{etoolbox}'
+  - '\AtBeginEnvironment{Highlighting}{\renewcommand{\^}[1]{\textasciicircum}}'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, comment = "#>",
+                      fig.width = 5.2, fig.height = 3.3, fig.align = "center")
+options(width = 80, tibble.print_max = 6, tibble.print_min = 6, pillar.sigfig = 5)
+```
+
+# What this document is
+
+This is Lecture 11 as a written tutorial, in the same order as the script
+`lecture11_models.R`. It follows *Business Analytics* (Camm et al.), Chapters 8.4 and 8.5,
+10.2 and 10.3, and 11.1 to 11.4, and Chapter 5 of *Tidyverse Skills for Data Science*
+(Wright et al.). Open the `.Rmd` file in RStudio and press **Knit** to rebuild this PDF.
+
+In Lecture 10 you fitted a straight line with one $x$: $y = \alpha + \beta x + \varepsilon$.
+Today you use several $x$ variables, then predict a $y$ that is only yes or no, and then
+predict from the most similar cases with k-nearest neighbours, checked on data the model
+has not seen.
+
+# Packages and the data
+
+`install.packages()` is needed once per computer; `library()` every session. Two packages
+are new today: `car` gives `vif()`, and `class` gives `knn()` (it comes with R).
+
+```{r install, eval=FALSE}
+install.packages("tidyverse")        # once per computer. Installed in Lecture 3
+install.packages("broom")            # once per computer. Installed in Lecture 10
+install.packages("GGally")           # once per computer. Installed in Lecture 7
+install.packages("car")              # once per computer. New today
+install.packages("class")            # once per computer. New today
+```
+
+```{r packages}
+library(tidyverse)                   # loads ggplot2, dplyr and the rest
+library(broom)                       # loads tidy() and glance()
+library(GGally)                      # loads ggpairs()
+library(car)                         # loads vif()
+library(class)                       # loads knn()
+```
+
+The data are 20 patients with high blood pressure, saved as `data/bloodpress.csv` in the
+lecture folder.
+
+```{r data}
+bp <- read_csv("data/bloodpress.csv")  # 20 patients with high blood pressure
+glimpse(bp)                          # 20 rows, 7 columns, all numbers
+```
+
+| Column | Meaning |
+|---|---|
+| `BP` | blood pressure in mm Hg: the $y$ |
+| `Age` | years |
+| `Weight` | kg |
+| `BSA` | body surface area, square metres |
+| `Dur` | years since the diagnosis |
+| `Pulse` | beats per minute |
+| `Stress` | a stress score from a questionnaire |
+
+# Multiple linear regression
+
+**Multiple linear regression** explains one dependent variable $y$ by two or more
+independent variables:
+
+$$y = \alpha + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_k x_k + \varepsilon$$
+
+Each $\beta$ is the change in $y$ when its $x$ goes up by 1, **holding the other $x$
+variables constant**. In the formula of `lm()`, `+` means "and".
+
+```{r fit2}
+fit2 <- lm(BP ~ Age + Weight, data = bp)  # BP explained by Age and Weight
+summary(fit2)                        # the estimates, standard errors, p-values, R-squared
+```
+
+The estimated equation is
+
+$$\text{BP} = -16.58 + 0.708 \times \text{Age} + 1.033 \times \text{Weight}$$
+
+- **Age, 0.708**: one year older, same weight: blood pressure about 0.71 mm Hg higher, on average.
+- **Weight, 1.033**: one kg heavier, same age: about 1.03 mm Hg higher.
+- **Intercept, -16.58**: BP at age 0 and weight 0 kg: far outside the data, no practical meaning.
+- **$R^2$ = 0.99**: age and weight together explain 99% of the variation in blood pressure in these 20 patients.
+
+"Holding the other $x$ variables constant" means comparing people who differ in one $x$
+only: two patients of 95 kg, aged 50 and 51, differ by 0.71 mm Hg. A prediction needs a
+value for every $x$ in the model:
+
+```{r predict2}
+# BP for a 50-year-old who weighs 95 kg
+predict(fit2, newdata = tibble(Age = 50, Weight = 95))
+```
+
+By hand: $-16.58 + 0.708 \times 50 + 1.033 \times 95 = 117.0$.
+
+# Inference and regression
+
+Two kinds of test, with the same decision rule: **p-value below 0.05, reject $H_0$**; the
+result is statistically significant. A p-value of 0.05 or above means we cannot reject
+$H_0$, which is not proof that the effect is zero.
+
+- **t-test**, one $\beta$ at a time. $H_0$: $\beta = 0$, this $x$ does not help, given the others.
+- **F-test**, the whole model. $H_0$: all $\beta$ are 0, no $x$ helps at all.
+
+```{r fit6}
+# all six x variables
+fit6 <- lm(BP ~ Age + Weight + BSA + Dur + Pulse + Stress, data = bp)
+summary(fit6)                        # Age, Weight, BSA significant; Dur, Pulse, Stress not
+```
+
+Age, Weight and BSA are significant. Dur, Pulse and Stress are not: once age, weight and
+BSA are in the model, they add no clear information. The last line is the F-test: F =
+560.6, p = 6.4e-15, so at least one $x$ is related to blood pressure. The tests rely on the
+four conditions of Lecture 10 for the error term and on no strong multicollinearity.
+
+`tidy()` gives the same coefficient table as a tibble, and `glance()` the model numbers:
+
+```{r tidy6}
+tidy(fit6)                           # the same coefficient table as a tibble
+glance(fit2)                         # R-squared 0.9914, adjusted 0.9904
+glance(fit6)                         # R-squared 0.9962, adjusted 0.9944
+```
+
+$R^2$ is the share of the variation in $y$ that the model explains. It **never goes down**
+when we add an $x$, even a useless one. **Adjusted $R^2$** subtracts a penalty for every
+extra $x$, so use it to compare models with a different number of $x$ variables.
+
+# Multicollinearity
+
+**Multicollinearity**: two or more $x$ variables are strongly correlated with each other.
+Heavier people have a larger body surface, so Weight and BSA carry almost the same
+information. The model cannot tell which of the two is responsible: the standard errors
+grow, and the estimates change a lot when a variable is added or removed. The predictions of
+the model as a whole are not harmed.
+
+Two ways to detect it: the correlation matrix of the $x$ variables ($|r|$ above 0.8 is a
+warning), and the variance inflation factor.
+
+```{r ggpairs, fig.width = 7, fig.height = 5.2}
+bp |>
+  select(Age, Weight, BSA, Dur, Pulse, Stress) |>  # the six x variables
+  ggpairs()                          # scatter plots below, correlations above
+```
+
+```{r cor}
+bp |>
+  select(Age, Weight, BSA, Dur, Pulse, Stress) |>  # the six x variables
+  cor() |>                           # the correlation matrix
+  round(2)                           # two decimals. Weight and BSA: 0.88
+```
+
+The **variance inflation factor (VIF)**, one per $x$: 1 means no correlation with the
+others, above 5 is a worry, above 10 is serious.
+
+```{r vif6}
+vif(fit6)                            # variance inflation factor, one per x
+```
+
+Weight (8.4) and BSA (5.3) are above 5. Removing one of the pair is the simplest remedy:
+
+```{r fit5}
+# the same model without BSA
+fit5 <- lm(BP ~ Age + Weight + Dur + Pulse + Stress, data = bp)
+vif(fit5)                            # all VIFs now below 5
+glance(fit5)                         # adjusted R-squared 0.992: almost nothing lost
+```
+
+Other remedies: combine the two into one index when that makes sense, or use
+regularisation, such as ridge regression, which keeps all variables but shrinks their
+estimates. Multicollinearity is a problem for interpreting the estimates, not for
+predicting.
+
+# Logistic regression
+
+When $y$ has two values, coded 1 (yes) and 0 (no), a straight line predicts values below 0
+and above 1, which cannot be probabilities. **Logistic regression** predicts the
+**probability** that $y = 1$, always between 0 and 1, on an S-shaped curve.
+
+The data are `mtcars`, 32 cars that come with R. `am` is 1 for a manual gearbox and 0 for
+an automatic; `wt` is the weight in 1000 lbs.
+
+```{r logit}
+glimpse(mtcars)                      # 32 cars, 11 columns
+# glm() with family = binomial is logistic regression
+logit <- glm(am ~ wt, data = mtcars, family = binomial)
+summary(logit)                       # wt: -4.02, p = 0.005
+```
+
+Read the sign: $-4.02$, so heavier cars are **less likely** to be manual. The p-value,
+0.005, is below 0.05: weight is significant. The size of the estimate is on the log-odds
+scale, which is hard to read, so we use predicted probabilities instead.
+
+```{r curve, echo = FALSE}
+curve <- tibble(wt = seq(1.4, 5.5, by = 0.02)) |>
+  mutate(prob = predict(logit, newdata = tibble(wt = wt), type = "response"))
+ggplot(mtcars, aes(x = wt, y = am)) +
+  geom_point() +
+  geom_line(data = curve, aes(x = wt, y = prob)) +
+  geom_hline(yintercept = 0.5, linetype = "dashed") +
+  labs(x = "Weight (1000 lbs)", y = "am: 1 = manual, 0 = automatic")
+```
+
+`type = "response"` gives the probability. With a **cut-off of 0.5**, a probability above
+0.5 predicts 1 (manual), otherwise 0. `if_else(test, value if TRUE, value if FALSE)` does
+this row by row.
+
+```{r classes}
+cars <- mtcars |>
+  mutate(prob = predict(logit, type = "response"),  # type = "response" gives probabilities
+         pred = if_else(prob > 0.5, 1, 0))          # cut-off 0.5: above it, predict manual
+
+cars |>
+  select(wt, am, prob, pred) |>      # the columns we need
+  head()                             # first six cars
+
+# a car of 3000 lbs: probability 0.49
+predict(logit, newdata = tibble(wt = 3), type = "response")
+```
+
+The **confusion matrix** counts the actual classes against the predicted ones: true
+positives and true negatives are correct; a false positive is a false alarm, a false
+negative a missed yes. **Accuracy** is the share of correct predictions.
+
+```{r confusion}
+cars |>
+  count(am, pred)                    # the confusion matrix: actual am against predicted
+cars |>
+  summarise(accuracy = mean(am == pred))  # share predicted correctly: 0.91 (29 of 32)
+```
+
+These are the same 32 cars the model learned from. A fair check uses new data.
+
+# k-nearest neighbours, and train and test
+
+**k-nearest neighbours (kNN)** predicts a new case from the $k$ most similar cases we
+already know. The idea: similar things are close together. kNN fits no line; it keeps the
+data and compares. The four steps:
+
+1. **Choose $k$**, the number of neighbours.
+2. **Measure the distance** from the new point to every known point. The Euclidean
+   distance is the straight-line distance, as with a ruler:
+   $d = \sqrt{(x_1 - x_1')^2 + (x_2 - x_2')^2}$.
+3. **Take the $k$ closest.**
+4. **Vote**: for classification, the new point gets the most common class among them; for
+   regression, the average of their values.
+
+## Example: which T-shirt size for a new customer?
+
+We know the height, weight and T-shirt size of 18 customers. A new customer is 162 cm and
+58 kg. We compute the distance from the new customer to every known customer and keep the
+five closest ($k = 5$).
+
+```{r shirts}
+shirts <- tibble(
+  height = c(158, 158, 158, 160, 160, 163, 163, 160, 163,
+             165, 165, 165, 168, 168, 168, 170, 170, 170),  # height in cm
+  weight = c(58, 59, 63, 59, 60, 60, 61, 64, 64,
+             61, 62, 65, 62, 63, 66, 63, 64, 68),            # weight in kg
+  size   = c("M", "M", "M", "M", "M", "M", "M", "L", "L",
+             "L", "L", "L", "L", "L", "L", "L", "L", "L"))   # T-shirt size
+
+shirts |>
+  mutate(distance = sqrt((height - 162)^2 +
+                         (weight - 58)^2)) |>  # distance to the new customer
+  arrange(distance) |>               # closest first
+  slice_head(n = 5)                  # the 5 nearest (k = 5)
+```
+
+All five nearest customers wear M, so we predict size **M** for the new customer.
+
+## Example: kNN for a number
+
+| Experience (years) | Income (1000 dollars) | Distance to 5 years |
+|---|---|---|
+| 1 | 25 | 4 |
+| 2 | 28 | 3 |
+| **4** | **45** | **1** |
+| **6** | **60** | **1** |
+| **7** | **65** | **2** |
+
+For a new person with 5 years of experience and $k = 3$, the three nearest are 4, 6 and 7
+years. The prediction is the average of their incomes: $(45 + 60 + 65) / 3 = 56.7$, so
+56,700 dollars.
+
+## Train and test
+
+The model learns from the **training set**, usually 80% of the rows chosen at random, like
+studying past exam questions. It then predicts the **test set**, the other 20%, like a new
+exam, and we compare with the true values. On the data it learned from, a model can look
+perfect because it has memorised them; only new data show whether it generalises.
+
+The data for the R example are `iris`, 150 flowers of three species that come with R.
+
+```{r split}
+flowers <- iris |>
+  mutate(id = row_number())          # a number for every flower, to split by
+
+set.seed(2026)                       # makes the random split the same every time
+train <- flowers |>
+  slice_sample(prop = 0.8)           # a random 80%: 120 flowers
+test <- flowers |>
+  anti_join(train, by = "id")        # the other 20%: 30 flowers
+```
+
+```{r iris-plot}
+ggplot(train, aes(x = Petal.Length, y = Petal.Width, colour = Species)) +
+  geom_point() +                     # the training flowers
+  labs(x = "Petal length (cm)", y = "Petal width (cm)")
+```
+
+`knn()` takes the $x$ columns of the training and test rows, the true classes of the
+training rows (`cl`), and $k$.
+
+```{r knn}
+train_x <- train |>
+  select(Petal.Length, Petal.Width)  # the x variables of the training flowers
+test_x <- test |>
+  select(Petal.Length, Petal.Width)  # the x variables of the test flowers
+
+set.seed(2026)                       # knn() breaks ties at random
+# k = 5 neighbours
+pred5 <- knn(train = train_x, test = test_x, cl = train$Species, k = 5)
+
+test <- test |>
+  mutate(pred = pred5)               # add the predicted species to the test table
+test |>
+  count(Species, pred)               # the confusion matrix
+test |>
+  summarise(accuracy = mean(Species == pred))  # share of test flowers classified correctly
+```
+
+29 of the 30 test flowers are classified correctly: accuracy 0.97 on flowers the method
+had not seen. The one error is a versicolor taken for a virginica.
+
+**Choosing $k$.** A small $k$ follows every single point, including noise: overfitting. A
+large $k$ smooths too much: underfitting. Try several values and keep the one with the best
+test accuracy; an odd $k$ avoids ties between two classes. **Units matter**: kNN works with
+distances, so put the $x$ variables on the same scale first when they are in different
+units. Petal length and width are both in cm.
+
+# The three methods side by side
+
+| | Multiple linear regression | Logistic regression | k-nearest neighbours |
+|---|---|---|---|
+| $y$ is | a number | yes or no (1 or 0) | a class or a number |
+| It gives | a predicted number | a probability, then a class | the majority class or the average |
+| In R | `lm()` | `glm(family = binomial)` | `knn()` |
+| We read | $\beta$s, p-values, adjusted $R^2$ | signs, p-values, probabilities | accuracy on the test set |
