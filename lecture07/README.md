@@ -14,6 +14,7 @@ and quartiles, outliers, and the association between two variables.
 | `lecture07_descriptive.Rmd` | the same content as an R Markdown tutorial. Open it in RStudio and press **Knit**. |
 | `lecture07_descriptive.pdf` | what the Rmd looks like once knitted |
 | `exercise_lecture07.pdf` (and `.Rmd`) | eight practice tasks on the housing data from Assignment 1, not graded |
+| `exercise_lecture07_solutions.pdf` (and `.Rmd`) | the solutions to the practice tasks |
 
 The data, `flights` and `weather`, comes inside the **nycflights13** package. The
 practice exercise reads `housing.csv` from [`../assignment1/data/`](../assignment1/data/).

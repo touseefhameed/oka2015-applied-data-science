@@ -1,0 +1,170 @@
+---
+title: "Practice exercise, Lecture 7: solutions"
+subtitle: "ØKA2015 Applied Data Science"
+author: "Touseef Hameed"
+date: "6 October 2026"
+output:
+  pdf_document:
+    toc: false
+    highlight: tango
+fontsize: 11pt
+geometry: margin=2.2cm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, comment = "#>",
+                      fig.width = 5, fig.height = 2.6, fig.align = "center")
+options(width = 80, tibble.print_max = 5, tibble.print_min = 5, pillar.sigfig = 6)
+library(tidyverse)
+```
+
+For each task: the code, its output, and what to look for. The data has 20,640 districts.
+
+Install each package once per computer; load it in every session.
+
+```{r, eval=FALSE}
+install.packages("tidyverse")
+```
+
+```{r}
+library(tidyverse)
+url <- paste0("https://raw.githubusercontent.com/touseefhameed/",
+              "oka2015-applied-data-science/main/assignment1/data/housing.csv")
+housing <- read_csv(url)
+```
+
+## Task 1: types of data
+
+```{r}
+glimpse(housing)
+```
+
+a. Nine columns are quantitative (`<dbl>`). `ocean_proximity` is categorical (`<chr>`).
+b. `housing_median_age` counts whole years, so it is discrete. `ocean_proximity` has no
+natural order, so it is nominal.
+c. Cross-sectional: many districts at one point in time (the 1990 census).
+
+## Task 2: a frequency table
+
+```{r}
+housing |>
+  count(ocean_proximity, sort = TRUE) |>
+  mutate(percent = round(100 * n / sum(n), 1))
+```
+
+ISLAND has only 5 districts. Any average for that group rests on five values, so it should
+be reported with its `n` and read with care.
+
+## Task 3: shape
+
+```{r}
+hist(housing$median_income)
+hist(housing$housing_median_age)
+mean(housing$median_income)
+median(housing$median_income)
+mean(housing$housing_median_age)
+median(housing$housing_median_age)
+```
+
+`median_income` is skewed right: mean 3.87 above median 3.54. `housing_median_age` is
+roughly symmetric, mean 28.6 close to median 29, with a spike at 52, the highest value in
+the data.
+
+## Task 4: centre
+
+```{r}
+mean(housing$median_house_value)
+median(housing$median_house_value)
+housing |> count(median_house_value, sort = TRUE)
+```
+
+Mean 206,856 above median 179,700: skewed right. The mode is 500,001, in 965 districts.
+This value is a ceiling in the data, see Task 7.
+
+```{r}
+housing |>
+  group_by(ocean_proximity) |>
+  summarise(
+    mean   = mean(median_house_value),
+    median = median(median_house_value),
+    n      = n()) |>
+  arrange(desc(median))
+```
+
+ISLAND has the highest median, 414,700, but from 5 districts. Of the large groups,
+NEAR BAY is highest at 233,800; INLAND is far lowest at 108,500.
+
+## Task 5: spread
+
+```{r}
+sd(housing$median_house_value)
+range(housing$median_house_value)
+IQR(housing$median_house_value)
+summary(housing$median_house_value)
+```
+
+The maximum, 500,001, appears 965 times: values above it were
+recorded as 500,001.
+
+## Task 6: missing values
+
+```{r}
+colSums(is.na(housing))
+hist(housing$total_bedrooms)
+housing_filled <- housing |>
+  mutate(total_bedrooms = replace_na(total_bedrooms,
+                                     median(total_bedrooms, na.rm = TRUE)))
+sum(is.na(housing_filled$total_bedrooms))
+```
+
+`total_bedrooms` has 207 missing values. It is strongly skewed right (mean 538, median
+435), so the median is the better choice.
+
+## Task 7: outliers
+
+```{r}
+boxplot(housing$median_house_value)
+quantile(housing$median_house_value, c(0.25, 0.75))
+IQR(housing$median_house_value)
+housing |>
+  filter(median_house_value < -98087.5 |
+         median_house_value > 482412.5) |>
+  nrow()
+housing |> filter(median_house_value == 500001) |> nrow()
+```
+
+Fences: 119,600 - 1.5 × 145,125 = -98,087.5 and 264,725 + 1.5 × 145,125 = 482,412.5.
+1,071 districts lie above the upper fence, 965 of them at exactly 500,001. Those 965 are
+not wrong, but their true value is unknown: somewhere at or above 500,001. Keep them and
+say so, or remove them when a task needs exact values, and state which you did.
+
+```{r}
+m <- mean(housing$total_rooms)
+s <- sd(housing$total_rooms)
+housing |>
+  mutate(z = (total_rooms - m) / s) |>
+  filter(abs(z) > 3) |>
+  nrow()
+```
+
+373 districts have `total_rooms` more than 3 sd from the mean: large districts, not errors.
+
+## Task 8: association
+
+```{r}
+plot(housing$median_income, housing$median_house_value)
+cor(housing$median_income, housing$median_house_value)
+housing |>
+  select(income = median_income, value = median_house_value,
+         age = housing_median_age, population) |>
+  cor() |>
+  round(2)
+```
+
+a. An upward cloud, with a flat line of points at 500,001 along the top.
+b. $r = 0.69$: a fairly strong positive relationship.
+c. The weakest pair is income and population: $r = 0.00$. `select(new = old)` renames the
+columns so that the matrix fits on the page.
+d. No. Correlation shows that the two move together, not why. Richer people may buy in
+expensive areas, expensive areas may attract richer people, or a third factor, such as
+distance to the coast, may drive both.
