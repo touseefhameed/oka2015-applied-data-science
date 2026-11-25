@@ -1,0 +1,177 @@
+---
+title: "Practice exercise, Lecture 4: solutions"
+subtitle: "ØKA2015 Applied Data Science"
+author: "Touseef Hameed"
+date: "18 September 2026"
+output:
+  pdf_document:
+    toc: false
+    highlight: tango
+fontsize: 11pt
+geometry: margin=2.2cm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, comment = "#>")
+options(width = 80, tibble.print_max = 3, tibble.print_min = 3, pillar.sigfig = 4)
+library(tidyverse)
+library(nycflights13)
+```
+
+For each task: the code, its output, and what to look for. Where a whole table would print,
+`|> nrow()` is added so that only the row count shows; your own output is the
+full table, whose first line gives the same count. Where the answer is in a column that
+the printout hides, `|> glimpse()` shows every column of the top rows.
+
+Install each package once per computer; load it in every session.
+
+```{r, eval=FALSE}
+install.packages("tidyverse")
+install.packages("nycflights13")
+```
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+## Task 1: operators and the pipe
+
+a. All three are FALSE. `3 == 4` is FALSE and AND needs both. `"EWR"` is not in the set.
+`10 < 20` is TRUE and NOT flips it.
+
+```{r}
+5 > 2 & 3 == 4
+"EWR" %in% c("JFK", "LGA")
+!(10 < 20)
+```
+
+b. The pipe puts the thing on the left into the first argument on the right. In words:
+the flights, then count the rows; the flights, then keep those going to Boston.
+
+```{r}
+flights |> nrow()
+flights |> filter(dest == "BOS") |> nrow()
+```
+
+## Task 2: filter, one condition
+
+```{r}
+flights |> filter(month == 12) |> nrow()          # a
+flights |> filter(arr_delay > 60) |> nrow()       # b
+flights |> filter(is.na(arr_delay)) |> nrow()     # c
+```
+
+c. None of these 9,430 flights has an `air_time`. They were cancelled or diverted to
+another airport, so no arrival delay could be recorded. Most of them (8,713) have no
+`arr_time` either.
+
+## Task 3: filter, several conditions
+
+```{r}
+flights |> filter(dest == "BOS" | dest == "DCA") |> nrow()               # a
+flights |> filter(dest %in% c("BOS", "DCA")) |> nrow()                   # a, shorter
+flights |> filter(month %in% 6:8 & origin == "JFK") |> nrow()            # b
+flights |> filter(arr_delay > 120 & dep_delay <= 0) |> nrow()            # c
+flights |> filter(dep_delay >= 60 & dep_delay - arr_delay > 30) |> nrow() # d
+```
+
+d. Time made up in the air is `dep_delay - arr_delay`. A subtraction is allowed inside
+a condition.
+
+## Task 4: the two mistakes
+
+a. R stops with "We detected a named input. This usually means that you've used `=`
+instead of `==`." It wanted `month == 12`.
+
+```{r, error=TRUE}
+flights |> filter(month = 12)
+```
+
+b. All 336,776 rows come back. R reads `month == 12 | 1` as `(month == 12) | 1`, and
+the number 1 counts as TRUE, so the condition is TRUE for every row. What was meant
+gives 55,139 rows.
+
+```{r}
+flights |> filter(month == 12 | 1) |> nrow()
+flights |> filter(month == 12 | month == 1) |> nrow()
+flights |> filter(month %in% c(12, 1)) |> nrow()
+```
+
+## Task 5: arrange
+
+a. Hawaiian Airlines (HA) to Honolulu on 9 January, 1,272 minutes late on arrival. The
+`carrier` and `dest` columns are hidden in the normal printout; `glimpse()` shows them.
+
+```{r}
+flights |> arrange(desc(arr_delay)) |> head(10) |> glimpse()
+```
+
+b. `dep_time` 1 is 00:01, one minute past midnight. Times are stored as hhmm numbers:
+517 is 05:17, 2400 is midnight.
+
+```{r}
+flights |> arrange(dep_time)
+```
+
+c. Newark to LaGuardia, 17 miles, a single flight that was cancelled. After it, Newark to
+Philadelphia, 80 miles.
+
+```{r}
+flights |> arrange(distance) |> head(3) |> glimpse()
+```
+
+d. All ten go to Honolulu (HNL), the longest route, 11 hours and more in the air.
+
+```{r}
+flights |> arrange(desc(air_time)) |> head(10) |> glimpse()
+```
+
+## Task 6: distinct and count
+
+```{r}
+flights |> distinct(carrier) |> nrow()            # a: 16 airlines
+flights |> distinct(dest) |> nrow()               #    105 destinations
+flights |> count(carrier, sort = TRUE)            # b: United (UA) first
+flights |> distinct(year, month, day) |> nrow()   # c: 365, a flight on every day
+flights |> count(origin, sort = TRUE)             # d: Newark (EWR) first
+```
+
+e. The result is the same either way. Filtering first is faster: the sort then handles
+28,135 rows instead of 336,776.
+
+```{r}
+flights |> filter(month == 12) |> arrange(desc(dep_delay)) |> nrow()
+flights |> arrange(desc(dep_delay)) |> filter(month == 12) |> nrow()
+```
+
+## Task 7: a pipeline you can read aloud
+
+Take the flights, then keep December, then keep arrivals more than an hour late, then
+put the worst first. The two filters can also be one: `filter(month == 12 & arr_delay > 60)`.
+
+```{r}
+december_late <- flights |>
+  filter(month == 12) |>
+  filter(arr_delay > 60) |>
+  arrange(desc(arr_delay))
+nrow(december_late)
+```
+
+## Task 8: Global Superstore
+
+Code only; the data is not in the course folder, and the file name depends on the
+download. Column names with spaces need backticks, as in `` `Customer Name` ``.
+
+```{r, eval=FALSE}
+superstore <- read_csv("data/Global_Superstore.csv")
+superstore |> filter(Category == "Technology" & Discount > 0.2)   # a
+superstore |> arrange(desc(Profit)) |> head(5)                   # b
+superstore |> distinct(`Customer Name`) |> nrow()                # c, unique customers
+superstore |> count(Region, sort = TRUE)                         # c, rows per region
+```
+
+## Task 9: save your work
+
+No answer to check. The script must run from the top in a fresh session. The usual
+missing line is `library(tidyverse)` or `library(nycflights13)`.

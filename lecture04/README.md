@@ -15,6 +15,7 @@ Introduction to the end of "Rows": the flights data, what every verb shares, the
 | `lecture04_wrangling.Rmd` | the same content as an R Markdown tutorial: text and code together. Open it in RStudio and press **Knit**. |
 | `lecture04_wrangling.pdf` | what the Rmd looks like once knitted |
 | `exercise_lecture04.pdf` (and `.Rmd`) | nine short practice tasks, not graded. The answers to the script's "check yourself" questions are at the end. |
+| `exercise_lecture04_solutions.pdf` (and `.Rmd`) | the solutions to the practice tasks |
 
 The data, `flights`, comes inside the **nycflights13** package (336,776 flights out of
 New York in 2013); the script installs it if it is missing.
